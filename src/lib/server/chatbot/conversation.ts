@@ -7,7 +7,7 @@
 import { generateText, streamText, type ModelMessage } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { ANTHROPIC_API_KEY, OPENAI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { getChatbotDatabase, getChatbotConfig } from './database';
 import { retrieveCapsules, enrichWithRelated, retrieveMethodologies, type ScoredMethodology } from './retrieval';
 import { embed } from './embeddings';
@@ -35,11 +35,13 @@ export interface ProviderConfig {
 	apiKey: string;
 }
 
-const defaultProviderConfig: ProviderConfig = {
-	provider: 'anthropic',
-	model: 'claude-sonnet-4-20250514',
-	apiKey: ANTHROPIC_API_KEY || ''
-};
+function getDefaultProviderConfig(): ProviderConfig {
+	return {
+		provider: 'anthropic',
+		model: 'claude-sonnet-4-20250514',
+		apiKey: env.ANTHROPIC_API_KEY || ''
+	};
+}
 
 function getModel(config: ProviderConfig) {
 	switch (config.provider) {
@@ -702,7 +704,7 @@ export async function startConversation(
 		currentPhase: 'greeting',
 		detectedEmotion: 'neutral',
 		messageHistory: [],
-		providerConfig: providerConfig || defaultProviderConfig
+		providerConfig: providerConfig || getDefaultProviderConfig()
 	};
 }
 

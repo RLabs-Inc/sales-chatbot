@@ -12,11 +12,19 @@ import { getKnowledgeCuratorSystemPrompt, getDocumentProcessingUserPrompt } from
 import { embed } from './embeddings';
 import type { Chatbot } from '$lib/server/db/schema';
 import type { KnowledgeCapsuleSchema } from './types';
-import { ANTHROPIC_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
-const anthropic = new Anthropic({
-	apiKey: ANTHROPIC_API_KEY
-});
+// Lazy initialization to support runtime env vars
+let anthropic: Anthropic | null = null;
+function getAnthropicClient(): Anthropic {
+	if (!anthropic) {
+		if (!env.ANTHROPIC_API_KEY) {
+			throw new Error('ANTHROPIC_API_KEY environment variable is required');
+		}
+		anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+	}
+	return anthropic;
+}
 
 export interface ProcessingResult {
 	success: boolean;
@@ -236,7 +244,7 @@ async function curateDocument(chatbot: Chatbot, document: DocumentInput): Promis
 		}
 	}
 
-	const response = await anthropic.messages.create({
+	const response = await getAnthropicClient().messages.create({
 		model: 'claude-opus-4-5',
 		max_tokens: 16000,
 		system: systemPrompt,
