@@ -5,7 +5,7 @@
 		"buildCommand": "bun install && bun run build"
 	},
 	"deploy": {
-		"startCommand": "bunx drizzle-kit push --force && NODE_PATH=/app/node_modules node build",
+		"startCommand": "mkdir -p /app/data /app/.data/chatbots && bunx drizzle-kit push --force && NODE_PATH=/app/node_modules node build",
 		"healthcheckPath": "/health",
 		"healthcheckTimeout": 60,
 		"restartPolicyType": "ON_FAILURE",
