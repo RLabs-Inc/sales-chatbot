@@ -12,7 +12,8 @@ import { getKnowledgeCuratorSystemPrompt, getDocumentProcessingUserPrompt } from
 import { embed } from './embeddings';
 import type { Chatbot } from '$lib/server/db/schema';
 import type { KnowledgeCapsuleSchema } from './types';
-import { env } from '$env/dynamic/private';
+// Use process.env directly - $env/dynamic/private doesn't work reliably with adapter-node
+const env = process.env;
 
 // Lazy initialization to support runtime env vars
 let anthropic: Anthropic | null = null;
