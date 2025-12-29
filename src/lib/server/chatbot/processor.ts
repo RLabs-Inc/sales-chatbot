@@ -87,9 +87,10 @@ export async function processDocument(
 				// Generate embedding for the content
 				const embedding = await embed(capsule.content);
 
-				// Insert into fsDB
+				// Insert into fsDB - content goes in the markdown body
 				db.knowledge.insert({
 					...capsule.metadata,
+					content: capsule.content,
 					embedding
 				});
 
