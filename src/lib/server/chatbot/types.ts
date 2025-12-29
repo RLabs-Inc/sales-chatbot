@@ -79,6 +79,7 @@ export interface KnowledgeCapsuleSchema {
 
 // fsDB schema definition for knowledge capsules
 export const knowledgeCapsuleSchemaDefinition = {
+	content: 'string', // The actual knowledge text - stored in markdown body via contentColumn
 	sourceDocument: 'string',
 	sourceType: 'string',
 	chunkIndex: 'number',
@@ -206,6 +207,7 @@ export interface ConversationSchema {
 }
 
 export const conversationSchemaDefinition = {
+	summary: 'string', // AI-generated conversation summary - stored in markdown body via contentColumn
 	channelId: 'string',
 	channelType: 'string',
 	customerIdentifier: 'string',
@@ -255,6 +257,7 @@ export interface MessageSchema {
 }
 
 export const messageSchemaDefinition = {
+	content: 'string', // The message text - stored in markdown body via contentColumn
 	conversationId: 'string',
 	role: 'string',
 	timestamp: 'number',

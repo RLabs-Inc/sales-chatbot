@@ -348,7 +348,8 @@ function parseCapsules(
 
 		try {
 			// Split YAML frontmatter from content
-			const parts = yamlContent.split('---').filter((p) => p.trim());
+			// Use regex to only split on --- that's on its own line (not inside markdown tables)
+			const parts = yamlContent.split(/\n---\n/).filter((p) => p.trim());
 
 			if (parts.length >= 1) {
 				const frontmatter = parseYamlSimple(parts[0]) as Partial<KnowledgeCapsuleSchema>;
