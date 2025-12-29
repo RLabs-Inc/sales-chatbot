@@ -421,6 +421,7 @@ export async function processMethodology(
 			applicableEmotions: ['neutral'],
 			title: templateType,
 			summary: content.slice(0, 200),
+			content,  // Full content for markdown body
 			isUserProvided: true,
 			embedding
 		});
