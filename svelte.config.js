@@ -10,7 +10,16 @@ const config = {
 		adapter: adapter({
 			// Railway/Node.js server config
 			out: 'build',
-			precompress: true
+			precompress: true,
+			// Don't bundle native modules - load from node_modules at runtime
+			external: [
+				'@libsql/client',
+				'@libsql/linux-x64-gnu',
+				'@libsql/linux-x64-musl',
+				'@node-rs/argon2',
+				'sharp',
+				'libsql'
+			]
 		})
 	},
 
