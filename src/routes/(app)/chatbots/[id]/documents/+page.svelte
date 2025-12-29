@@ -209,7 +209,7 @@
 							{/if}
 
 							{#if uploadSuccess}
-								<Alert.Root class="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+								<Alert.Root class="border-meth-closing/30 bg-meth-closing/10 text-meth-closing">
 									<CheckCircleIcon class="h-4 w-4" />
 									<Alert.Description>
 										Uploaded "{uploadSuccess.name}" — {uploadSuccess.capsules} knowledge pieces created

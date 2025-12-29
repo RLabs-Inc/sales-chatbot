@@ -14,9 +14,9 @@
 
 	const statusVariants: Record<string, string> = {
 		draft: 'bg-muted text-muted-foreground',
-		testing: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-		active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-		paused: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+		testing: 'bg-meth-trust/15 text-meth-trust',
+		active: 'bg-meth-closing/15 text-meth-closing',
+		paused: 'bg-meth-urgency/15 text-meth-urgency'
 	};
 </script>
 

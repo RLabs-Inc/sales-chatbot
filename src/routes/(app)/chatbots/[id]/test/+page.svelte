@@ -195,7 +195,7 @@
 							{#if conversationId}
 								<Badge
 									variant="outline"
-									class="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300"
+									class="bg-meth-closing/10 text-meth-closing border-meth-closing/30"
 									>Active</Badge
 								>
 								<Button
@@ -215,7 +215,7 @@
 
 					{#if data.documentCount === 0}
 						<Alert.Root
-							class="border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+							class="border-meth-urgency/30 bg-meth-urgency/10 text-meth-urgency"
 						>
 							<AlertTriangleIcon class="h-4 w-4" />
 							<Alert.Description>
