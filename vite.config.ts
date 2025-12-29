@@ -6,6 +6,32 @@ import { sveltekit } from '@sveltejs/kit/vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 
+	// Externalize native Node modules that can't be bundled
+	ssr: {
+		external: [
+			// LibSQL/SQLite native bindings
+			'@libsql/client',
+			'@libsql/linux-x64-gnu',
+			'@libsql/linux-x64-musl',
+			'@libsql/darwin-arm64',
+			'@libsql/darwin-x64',
+			'@libsql/win32-x64-msvc',
+			'libsql',
+			// Argon2 native bindings
+			'@node-rs/argon2',
+			'@node-rs/argon2-linux-x64-gnu',
+			'@node-rs/argon2-linux-x64-musl',
+			'@node-rs/argon2-darwin-arm64',
+			'@node-rs/argon2-darwin-x64',
+			// Sharp image processing
+			'sharp',
+			// Other native modules
+			'@neon-rs/load',
+			'bufferutil',
+			'utf-8-validate'
+		]
+	},
+
 	test: {
 		expect: { requireAssertions: true },
 
