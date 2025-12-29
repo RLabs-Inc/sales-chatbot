@@ -36,10 +36,18 @@ export interface ProviderConfig {
 }
 
 function getDefaultProviderConfig(): ProviderConfig {
+	const apiKey = env.ANTHROPIC_API_KEY;
+
+	if (!apiKey) {
+		console.error('[conversation] ANTHROPIC_API_KEY not found in environment');
+		console.error('[conversation] Available env keys:', Object.keys(env).filter(k => k.includes('KEY') || k.includes('API')));
+		throw new Error('ANTHROPIC_API_KEY environment variable is required but not set');
+	}
+
 	return {
 		provider: 'anthropic',
 		model: 'claude-sonnet-4-20250514',
-		apiKey: env.ANTHROPIC_API_KEY || ''
+		apiKey
 	};
 }
 

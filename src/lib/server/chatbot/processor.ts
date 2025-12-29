@@ -19,7 +19,9 @@ let anthropic: Anthropic | null = null;
 function getAnthropicClient(): Anthropic {
 	if (!anthropic) {
 		if (!env.ANTHROPIC_API_KEY) {
-			throw new Error('ANTHROPIC_API_KEY environment variable is required');
+			console.error('[processor] ANTHROPIC_API_KEY not found in environment');
+			console.error('[processor] Available env keys:', Object.keys(env).filter(k => k.includes('KEY') || k.includes('API')));
+			throw new Error('ANTHROPIC_API_KEY environment variable is required but not set');
 		}
 		anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 	}
