@@ -1,5 +1,5 @@
 import { mdsvex } from 'mdsvex';
-import adapter from '@sveltejs/adapter-vercel';
+import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -8,8 +8,9 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			// Vercel serverless functions config
-			runtime: 'nodejs22.x'
+			// Railway/Node.js server config
+			out: 'build',
+			precompress: true
 		})
 	},
 
