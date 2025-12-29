@@ -12,14 +12,7 @@ const config = {
 			out: 'build',
 			precompress: true,
 			// Don't bundle native modules - load from node_modules at runtime
-			external: [
-				'@libsql/client',
-				'@libsql/linux-x64-gnu',
-				'@libsql/linux-x64-musl',
-				'@node-rs/argon2',
-				'sharp',
-				'libsql'
-			]
+			external: ['better-sqlite3', '@node-rs/argon2', 'sharp']
 		})
 	},
 

@@ -1,19 +1,20 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient, type Client } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import * as schema from './schema';
 import { env } from '$env/dynamic/private';
 
-// Lazy initialization to support build-time analysis without DATABASE_URL
-let client: Client | null = null;
+// Lazy initialization to support build-time analysis without DATABASE_PATH
+let sqlite: Database.Database | null = null;
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
 	if (!_db) {
-		if (!env.DATABASE_URL) {
-			throw new Error('DATABASE_URL is not set');
-		}
-		client = createClient({ url: env.DATABASE_URL });
-		_db = drizzle(client, { schema });
+		// Use DATABASE_PATH for file path, default to local.db
+		const dbPath = env.DATABASE_PATH || './local.db';
+		sqlite = new Database(dbPath);
+		// Enable WAL mode for better performance
+		sqlite.pragma('journal_mode = WAL');
+		_db = drizzle(sqlite, { schema });
 	}
 	return _db;
 }
