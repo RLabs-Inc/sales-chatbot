@@ -2,7 +2,7 @@
 // DASHBOARD - Server load function and form actions
 // ============================================================================
 
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, isRedirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
@@ -101,7 +101,7 @@ export const actions: Actions = {
 
 			throw redirect(303, `/chatbots/${id}/test`);
 		} catch (err) {
-			if (err instanceof Response) throw err; // Re-throw redirects
+			if (isRedirect(err)) throw err; // Re-throw redirects
 			console.error('[dashboard] Create error:', err);
 			return fail(500, {
 				error: 'Failed to create chatbot',
