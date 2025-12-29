@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   SALESBOT DESIGN SYSTEM - Editorial Warmth
+   ============================================================================ */
+
+:root {
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+
+  /* Editorial Warmth Palette */
+  --cream: #faf8f5;
+  --cream-dark: #f0ece4;
+  --sienna: #8b4513;
+  --sienna-light: #a0522d;
+  --sienna-dark: #6b3a1f;
+  --amber: #d4a574;
+  --amber-light: #e8c9a8;
+  --charcoal: #2c2420;
+  --warm-gray: #6b6258;
+
+  /* Semantic Colors */
+  --color-surface: var(--cream);
+  --color-surface-elevated: white;
+  --color-text: var(--charcoal);
+  --color-text-muted: var(--warm-gray);
+  --color-accent: var(--sienna);
+  --color-accent-soft: var(--amber-light);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(44, 36, 32, 0.06);
+  --shadow-md: 0 4px 12px rgba(44, 36, 32, 0.08);
+  --shadow-lg: 0 8px 24px rgba(44, 36, 32, 0.12);
+
+  /* shadcn-svelte tokens (mapped to our palette) */
+  --radius: 0.625rem;
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+  --card: var(--color-surface-elevated);
+  --card-foreground: var(--charcoal);
+  --popover: var(--color-surface-elevated);
+  --popover-foreground: var(--charcoal);
+  --primary: var(--sienna);
+  --primary-foreground: var(--cream);
+  --secondary: var(--cream-dark);
+  --secondary-foreground: var(--charcoal);
+  --muted: var(--cream-dark);
+  --muted-foreground: var(--warm-gray);
+  --accent: var(--amber-light);
+  --accent-foreground: var(--charcoal);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: rgba(139, 69, 19, 0.15);
+  --input: rgba(139, 69, 19, 0.15);
+  --ring: var(--amber);
+  --chart-1: var(--sienna);
+  --chart-2: var(--amber);
+  --chart-3: var(--sienna-dark);
+  --chart-4: var(--amber-light);
+  --chart-5: var(--warm-gray);
+
+  /* Methodology Type Colors (light mode) */
+  --meth-phase: var(--sienna);
+  --meth-transition: oklch(0.55 0.18 280);
+  --meth-objection: oklch(0.577 0.245 27);
+  --meth-closing: oklch(0.55 0.18 145);
+  --meth-question: var(--amber);
+  --meth-value: oklch(0.65 0.20 350);
+  --meth-urgency: oklch(0.65 0.20 45);
+  --meth-trust: oklch(0.55 0.15 180);
+
+  /* Sidebar tokens */
+  --sidebar: var(--cream);
+  --sidebar-foreground: var(--charcoal);
+  --sidebar-primary: var(--sienna);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: var(--amber-light);
+  --sidebar-accent-foreground: var(--charcoal);
+  --sidebar-border: rgba(139, 69, 19, 0.1);
+  --sidebar-ring: var(--amber);
+}
+
+.dark {
+  /* Editorial Warmth Dark - Warm charcoal base with amber accents */
+  --background: oklch(0.18 0.02 55);
+  --foreground: oklch(0.95 0.01 80);
+  --card: oklch(0.22 0.025 55);
+  --card-foreground: oklch(0.95 0.01 80);
+  --popover: oklch(0.22 0.025 55);
+  --popover-foreground: oklch(0.95 0.01 80);
+  --primary: oklch(0.72 0.12 55);
+  --primary-foreground: oklch(0.18 0.02 55);
+  --secondary: oklch(0.28 0.03 55);
+  --secondary-foreground: oklch(0.92 0.01 80);
+  --muted: oklch(0.28 0.03 55);
+  --muted-foreground: oklch(0.65 0.04 55);
+  --accent: oklch(0.55 0.10 55);
+  --accent-foreground: oklch(0.95 0.01 80);
+  --destructive: oklch(0.65 0.20 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.72 0.12 55);
+  --chart-1: oklch(0.72 0.12 55);
+  --chart-2: oklch(0.75 0.15 70);
+  --chart-3: oklch(0.55 0.10 45);
+  --chart-4: oklch(0.80 0.10 80);
+  --chart-5: oklch(0.60 0.05 55);
+  --sidebar: oklch(0.15 0.015 55);
+  --sidebar-foreground: oklch(0.95 0.01 80);
+  --sidebar-primary: oklch(0.72 0.12 55);
+  --sidebar-primary-foreground: oklch(0.18 0.02 55);
+  --sidebar-accent: oklch(0.30 0.04 55);
+  --sidebar-accent-foreground: oklch(0.95 0.01 80);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.12 55);
+
+  /* Override semantic colors for dark mode */
+  --color-surface: oklch(0.18 0.02 55);
+  --color-surface-elevated: oklch(0.22 0.025 55);
+  --color-text: oklch(0.95 0.01 80);
+  --color-text-muted: oklch(0.65 0.04 55);
+  --color-accent: oklch(0.72 0.12 55);
+  --color-accent-soft: oklch(0.35 0.06 55);
+  --cream-dark: oklch(0.28 0.03 55);
+
+  /* Methodology Type Colors (dark mode - adjusted for visibility) */
+  --meth-phase: oklch(0.72 0.12 55);
+  --meth-transition: oklch(0.65 0.18 280);
+  --meth-objection: oklch(0.65 0.20 27);
+  --meth-closing: oklch(0.65 0.18 145);
+  --meth-question: oklch(0.75 0.15 70);
+  --meth-value: oklch(0.70 0.20 350);
+  --meth-urgency: oklch(0.72 0.18 45);
+  --meth-trust: oklch(0.65 0.15 180);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-meth-phase: var(--meth-phase);
+  --color-meth-transition: var(--meth-transition);
+  --color-meth-objection: var(--meth-objection);
+  --color-meth-closing: var(--meth-closing);
+  --color-meth-question: var(--meth-question);
+  --color-meth-value: var(--meth-value);
+  --color-meth-urgency: var(--meth-urgency);
+  --color-meth-trust: var(--meth-trust);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
