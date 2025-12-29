@@ -430,7 +430,7 @@ export async function chat(
 	const retrievedKnowledge = finalCapsules
 		.map(
 			(sc, i) =>
-				`### Knowledge ${i + 1} (relevance: ${(sc.finalScore * 100).toFixed(0)}%)\n${sc.capsule.content}`
+				`### Knowledge ${i + 1} (relevance: ${(sc.finalScore * 100).toFixed(0)}%)\n${sc.capsule.content || ''}`
 		)
 		.join('\n\n');
 
@@ -551,21 +551,24 @@ export async function chatStream(
 	const retrievalTimeMs = performance.now() - retrievalStart;
 
 	// Build capsule debug info
-	const capsuleDebugInfo: CapsuleDebugInfo[] = finalCapsules.map((sc) => ({
-		id: sc.capsule.id,
-		sourceDocument: sc.capsule.sourceDocument,
-		contextType: sc.capsule.contextType,
-		contentPreview: sc.capsule.content.slice(0, 200) + (sc.capsule.content.length > 200 ? '...' : ''),
-		scores: {
-			relevance: sc.relevanceScore,
-			value: sc.valueScore,
-			final: sc.finalScore,
-			details: sc.matchDetails
-		},
-		matchedTriggers: findMatchedTriggers(userMessage, sc.capsule.triggerPhrases || []),
-		matchedTags: findMatchedTags(userMessage, sc.capsule.semanticTags || []),
-		isEnriched: !originalIds.has(sc.capsule.id)
-	}));
+	const capsuleDebugInfo: CapsuleDebugInfo[] = finalCapsules.map((sc) => {
+		const content = sc.capsule.content || '';
+		return {
+			id: sc.capsule.id,
+			sourceDocument: sc.capsule.sourceDocument,
+			contextType: sc.capsule.contextType,
+			contentPreview: content.slice(0, 200) + (content.length > 200 ? '...' : ''),
+			scores: {
+				relevance: sc.relevanceScore,
+				value: sc.valueScore,
+				final: sc.finalScore,
+				details: sc.matchDetails
+			},
+			matchedTriggers: findMatchedTriggers(userMessage, sc.capsule.triggerPhrases || []),
+			matchedTags: findMatchedTags(userMessage, sc.capsule.semanticTags || []),
+			isEnriched: !originalIds.has(sc.capsule.id)
+		};
+	});
 
 	// Retrieve methodologies
 	const allMethodologies = db.methodology.all();
@@ -582,28 +585,31 @@ export async function chatStream(
 	);
 
 	// Build methodology debug info
-	const methodologyDebugInfo: MethodologyDebugInfo[] = scoredMethodologies.map((sm) => ({
-		id: sm.methodology.id,
-		title: sm.methodology.title,
-		methodologyType: sm.methodology.methodologyType,
-		contentPreview: sm.methodology.content.slice(0, 200) + (sm.methodology.content.length > 200 ? '...' : ''),
-		scores: {
-			relevance: sm.relevanceScore,
-			phase: sm.phaseScore,
-			emotion: sm.emotionScore,
-			priority: sm.priorityScore,
-			final: sm.finalScore
-		},
-		matchedTriggers: findMatchedTriggers(userMessage, sm.methodology.triggerPhrases || []),
-		phaseMatch: sm.matchDetails.phaseMatch,
-		emotionMatch: sm.matchDetails.emotionMatch
-	}))
+	const methodologyDebugInfo: MethodologyDebugInfo[] = scoredMethodologies.map((sm) => {
+		const content = sm.methodology.content || '';
+		return {
+			id: sm.methodology.id,
+			title: sm.methodology.title,
+			methodologyType: sm.methodology.methodologyType,
+			contentPreview: content.slice(0, 200) + (content.length > 200 ? '...' : ''),
+			scores: {
+				relevance: sm.relevanceScore,
+				phase: sm.phaseScore,
+				emotion: sm.emotionScore,
+				priority: sm.priorityScore,
+				final: sm.finalScore
+			},
+			matchedTriggers: findMatchedTriggers(userMessage, sm.methodology.triggerPhrases || []),
+			phaseMatch: sm.matchDetails.phaseMatch,
+			emotionMatch: sm.matchDetails.emotionMatch
+		};
+	});
 
 	// Build injected knowledge string
 	const retrievedKnowledge = finalCapsules
 		.map(
 			(sc, i) =>
-				`### Knowledge ${i + 1} (relevance: ${(sc.finalScore * 100).toFixed(0)}%)\n${sc.capsule.content}`
+				`### Knowledge ${i + 1} (relevance: ${(sc.finalScore * 100).toFixed(0)}%)\n${sc.capsule.content || ''}`
 		)
 		.join('\n\n');
 
@@ -611,7 +617,7 @@ export async function chatStream(
 	const retrievedMethodology = scoredMethodologies
 		.map(
 			(sm, i) =>
-				`### ${sm.methodology.methodologyType.replace('_', ' ').toUpperCase()}: ${sm.methodology.title} (relevance: ${(sm.finalScore * 100).toFixed(0)}%)\n${sm.methodology.content}`
+				`### ${sm.methodology.methodologyType.replace('_', ' ').toUpperCase()}: ${sm.methodology.title || 'Untitled'} (relevance: ${(sm.finalScore * 100).toFixed(0)}%)\n${sm.methodology.content || ''}`
 		)
 		.join('\n\n');
 
