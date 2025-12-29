@@ -7,8 +7,7 @@
 import { generateText, streamText, type ModelMessage } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-// Use process.env directly - $env/dynamic/private doesn't work reliably with adapter-node
-const env = process.env;
+import { env } from '$env/dynamic/private';
 import { getChatbotDatabase, getChatbotConfig } from './database';
 import { retrieveCapsules, enrichWithRelated, retrieveMethodologies, type ScoredMethodology } from './retrieval';
 import { embed } from './embeddings';
@@ -37,21 +36,10 @@ export interface ProviderConfig {
 }
 
 function getDefaultProviderConfig(): ProviderConfig {
-	const apiKey = env.ANTHROPIC_API_KEY;
-
-	if (!apiKey) {
-		console.error('[conversation] ANTHROPIC_API_KEY not found in environment');
-		console.error('[conversation] env object type:', typeof env);
-		console.error('[conversation] env object keys count:', Object.keys(env).length);
-		console.error('[conversation] All env keys:', Object.keys(env).slice(0, 20)); // First 20 keys
-		console.error('[conversation] process.env.ANTHROPIC_API_KEY exists:', !!process.env.ANTHROPIC_API_KEY);
-		throw new Error('ANTHROPIC_API_KEY environment variable is required but not set');
-	}
-
 	return {
 		provider: 'anthropic',
 		model: 'claude-sonnet-4-20250514',
-		apiKey
+		apiKey: env.ANTHROPIC_API_KEY!
 	};
 }
 

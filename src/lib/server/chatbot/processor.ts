@@ -12,19 +12,13 @@ import { getKnowledgeCuratorSystemPrompt, getDocumentProcessingUserPrompt } from
 import { embed } from './embeddings';
 import type { Chatbot } from '$lib/server/db/schema';
 import type { KnowledgeCapsuleSchema } from './types';
-// Use process.env directly - $env/dynamic/private doesn't work reliably with adapter-node
-const env = process.env;
+import { env } from '$env/dynamic/private';
 
-// Lazy initialization to support runtime env vars
+// Lazy initialization for runtime env vars
 let anthropic: Anthropic | null = null;
 function getAnthropicClient(): Anthropic {
 	if (!anthropic) {
-		if (!env.ANTHROPIC_API_KEY) {
-			console.error('[processor] ANTHROPIC_API_KEY not found in environment');
-			console.error('[processor] Available env keys:', Object.keys(env).filter(k => k.includes('KEY') || k.includes('API')));
-			throw new Error('ANTHROPIC_API_KEY environment variable is required but not set');
-		}
-		anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+		anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY! });
 	}
 	return anthropic;
 }
