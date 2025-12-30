@@ -58,6 +58,7 @@ export {
 	startConversation,
 	endConversation,
 	saveMessage,
+	restoreConversation,
 	type ConversationContext,
 	type ProviderConfig,
 	type AIProvider

@@ -1163,6 +1163,11 @@ export async function chatStream(
 		content: m.content
 	}));
 
+	console.log(`[chatStream] Sending ${messages.length} messages to model:`);
+	messages.forEach((m, i) => {
+		console.log(`  [${i}] ${m.role}: "${String(m.content).slice(0, 80)}..."`);
+	});
+
 	const model = getModel(context.providerConfig);
 
 	const { textStream } = streamText({
@@ -1287,4 +1292,49 @@ export async function saveMessage(
 	// Update conversation
 	db.conversations.updateField(context.conversationId, 'lastMessageAt', Date.now());
 	db.conversations.updateField(context.conversationId, 'messageCount', context.messageHistory.length);
+}
+
+// ============================================================================
+// CONVERSATION RESTORATION (from fsDB when not in memory)
+// ============================================================================
+
+export async function restoreConversation(
+	chatbot: Chatbot,
+	conversationId: string,
+	providerConfig?: ProviderConfig
+): Promise<ConversationContext | null> {
+	const db = await getChatbotDatabase(chatbot.id);
+	const config = await getChatbotConfig(chatbot.id);
+
+	// Get conversation record
+	const conversation = db.conversations.get(conversationId);
+	if (!conversation) {
+		return null;
+	}
+
+	// Get all messages for this conversation, sorted by timestamp
+	const allMessages = db.messages.all();
+	const conversationMessages = allMessages
+		.filter((m: { conversationId: string }) => m.conversationId === conversationId)
+		.sort((a: { timestamp: number }, b: { timestamp: number }) => a.timestamp - b.timestamp);
+
+	// Rebuild message history
+	const messageHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+	for (const msg of conversationMessages) {
+		// Convert 'customer' role to 'user' for the AI model
+		const role = msg.role === 'customer' ? 'user' : msg.role === 'assistant' ? 'assistant' : null;
+		if (role && msg.content) {
+			messageHistory.push({ role, content: msg.content });
+		}
+	}
+
+	return {
+		conversationId,
+		chatbot,
+		config,
+		currentPhase: (conversation.currentPhase as SalesPhase) || 'greeting',
+		detectedEmotion: (conversation.detectedEmotion as EmotionalResonance) || 'neutral',
+		messageHistory,
+		providerConfig: providerConfig || getDefaultProviderConfig()
+	};
 }

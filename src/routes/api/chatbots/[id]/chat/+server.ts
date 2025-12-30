@@ -10,6 +10,7 @@ import { chatbot } from '$lib/server/db/schema';
 import {
 	chatStream,
 	startConversation,
+	restoreConversation,
 	saveMessage,
 	initializeEmbeddings,
 	getChatbotConfig,
@@ -54,10 +55,28 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 	// Get or create conversation context
 	let context: ConversationContext;
 
+	console.log(`[chat] Request: conversationId=${conversationId}, message="${message.slice(0, 50)}..."`);
+	console.log(`[chat] Active conversations in memory: ${Array.from(activeConversations.keys()).join(', ') || 'none'}`);
+
 	if (conversationId && activeConversations.has(conversationId)) {
+		// Fast path: context is in memory
 		context = activeConversations.get(conversationId)!;
+		console.log(`[chat] Found in memory with ${context.messageHistory.length} messages`);
+	} else if (conversationId) {
+		// Try to restore from fsDB (survives server restarts/deployments)
+		const restored = await restoreConversation(bot, conversationId);
+		if (restored) {
+			context = restored;
+			activeConversations.set(conversationId, context);
+			console.log(`[chat] Restored conversation ${conversationId} from fsDB with ${context.messageHistory.length} messages`);
+		} else {
+			// Conversation not found, start new one
+			context = await startConversation(bot, 'test-channel', 'api', locals.user.id);
+			activeConversations.set(context.conversationId, context);
+			console.log(`[chat] Started new conversation ${context.conversationId} (requested ${conversationId} not found)`);
+		}
 	} else {
-		// Start new conversation
+		// No conversationId provided, start new conversation
 		context = await startConversation(bot, 'test-channel', 'api', locals.user.id);
 		activeConversations.set(context.conversationId, context);
 	}
