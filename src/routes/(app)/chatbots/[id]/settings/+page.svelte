@@ -270,12 +270,12 @@
 									name="maxTokensPerResponse"
 									type="number"
 									min="50"
-									max="2000"
+									max="5000"
 									step="50"
 									value={data.config.maxTokensPerResponse}
 								/>
 								<p class="text-xs text-muted-foreground">
-									Maximum tokens per response (50-2000)
+									Maximum tokens per response (50-5000)
 								</p>
 							</div>
 						</div>

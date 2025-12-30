@@ -96,7 +96,7 @@ export const actions: Actions = {
 				humanHandoffEnabled: true,
 				humanHandoffTriggers: ['talk to human', 'real person', 'speak to someone'],
 				temperature: 0.7,
-				maxTokensPerResponse: 500
+				maxTokensPerResponse: 1000
 			});
 
 			throw redirect(303, `/chatbots/${id}/test`);

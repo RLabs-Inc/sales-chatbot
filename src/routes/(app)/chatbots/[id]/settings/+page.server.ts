@@ -114,7 +114,7 @@ export const actions: Actions = {
 
 		const formData = await request.formData();
 		const temperature = parseFloat(formData.get('temperature') as string) || 0.7;
-		const maxTokensPerResponse = parseInt(formData.get('maxTokensPerResponse') as string) || 500;
+		const maxTokensPerResponse = parseInt(formData.get('maxTokensPerResponse') as string) || 1000;
 		const humanHandoffEnabled = formData.get('humanHandoffEnabled') === 'on';
 		const humanHandoffTriggersRaw = formData.get('humanHandoffTriggers') as string;
 
@@ -131,9 +131,9 @@ export const actions: Actions = {
 			});
 		}
 
-		if (maxTokensPerResponse < 50 || maxTokensPerResponse > 2000) {
+		if (maxTokensPerResponse < 50 || maxTokensPerResponse > 5000) {
 			return fail(400, {
-				error: 'Max tokens must be between 50 and 2000',
+				error: 'Max tokens must be between 50 and 5000',
 				section: 'behavior'
 			});
 		}

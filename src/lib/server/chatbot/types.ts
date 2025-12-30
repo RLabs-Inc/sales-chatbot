@@ -326,7 +326,7 @@ export interface ChatbotConfig {
 	// AI settings
 	systemPromptAdditions?: string; // Extra instructions for the AI
 	temperature: number; // Default: 0.7
-	maxTokensPerResponse: number; // Default: 500
+	maxTokensPerResponse: number; // Default: 1000
 }
 
 export const defaultChatbotConfig: ChatbotConfig = {
@@ -337,7 +337,7 @@ export const defaultChatbotConfig: ChatbotConfig = {
 	humanHandoffEnabled: true,
 	humanHandoffTriggers: ['talk to human', 'real person', 'speak to someone'],
 	temperature: 0.7,
-	maxTokensPerResponse: 500
+	maxTokensPerResponse: 1000
 };
 
 // ============================================================================
