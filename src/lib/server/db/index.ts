@@ -9,8 +9,8 @@ let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
 	if (!_db) {
-		// Use DATABASE_PATH for file path, default to local.db
-		const dbPath = env.DATABASE_PATH || './local.db';
+		// Use DATABASE_PATH for file path, default to .data/local.db (inside volume mount)
+		const dbPath = env.DATABASE_PATH || './.data/local.db';
 		sqlite = new Database(dbPath);
 		// Enable WAL mode for better performance
 		sqlite.pragma('journal_mode = WAL');
