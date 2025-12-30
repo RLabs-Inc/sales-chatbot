@@ -77,63 +77,329 @@ export interface ConversationContext {
 // ============================================================================
 
 const PHASE_INDICATORS: Record<SalesPhase, string[]> = {
-	greeting: ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'olá', 'oi', 'bom dia'],
+	greeting: [
+		// English
+		'hello',
+		'hi',
+		'hey',
+		'good morning',
+		'good afternoon',
+		'good evening',
+		'howdy',
+		"what's up",
+		'sup',
+		'yo',
+		// Portuguese - formal
+		'olá',
+		'bom dia',
+		'boa tarde',
+		'boa noite',
+		'tudo bem',
+		'como vai',
+		// Portuguese - colloquial/street
+		'oi',
+		'eai',
+		'e aí',
+		'fala',
+		'salve',
+		'opa',
+		'beleza',
+		'fala aí',
+		'iae',
+		'eae',
+		'coé',
+		'qual é'
+	],
 	qualification: [
+		// English
 		'need',
 		'looking for',
 		'want',
 		'interested in',
+		'searching for',
+		'trying to find',
+		'wish',
+		'require',
+		'hoping for',
+		'do you have',
+		'is there',
+		'what options',
+		'which options',
+		// Portuguese - formal
 		'preciso',
 		'procuro',
+		'busco',
+		'gostaria',
+		'necessito',
+		'interesse',
+		'interessado',
+		'interessada',
+		'opções',
+		'vocês tem',
+		'vocês têm',
+		'você tem',
+		'tens',
+		// Portuguese - colloquial/street
 		'quero',
-		'busco'
+		'querendo',
+		'to procurando',
+		'tô procurando',
+		'to buscando',
+		'tô buscando',
+		'me interessa',
+		'queria saber',
+		'queria ver',
+		'tem como',
+		'dá pra',
+		'rola',
+		'tem aí',
+		'cê tem'
 	],
 	presentation: [
+		// English
 		'tell me more',
 		'how does it work',
+		'how do you',
+		'how does',
 		'features',
 		'benefits',
+		'explain',
+		'show me',
+		'what is',
+		'what are',
+		'describe',
+		'details',
+		'more info',
+		'more about',
+		'learn more',
+		// Portuguese - formal
 		'como funciona',
+		'quais são',
+		'o que é',
+		'o que são',
+		'detalhes',
+		'mais informações',
+		'pode explicar',
+		'poderia explicar',
+		'me explique',
+		// Portuguese - colloquial/street
 		'me conta',
-		'explica'
+		'conta mais',
+		'fala mais',
+		'explica aí',
+		'me fala',
+		'como é que',
+		'como que',
+		'qual a diferença',
+		'e como',
+		'tipo como',
+		'como assim'
 	],
 	negotiation: [
+		// English
 		'price',
 		'cost',
 		'discount',
 		'expensive',
 		'afford',
+		'cheap',
+		'cheaper',
+		'budget',
+		'payment',
+		'installment',
+		'how much',
+		'worth',
+		'value',
+		'deal',
+		'terms',
+		'conditions',
+		'monthly',
+		'down payment',
+		'finance',
+		// Portuguese - formal
 		'preço',
-		'valor',
+		'custo',
 		'desconto',
-		'caro'
+		'caro',
+		'barato',
+		'valor',
+		'parcela',
+		'parcelas',
+		'entrada',
+		'condições',
+		'pagamento',
+		'financiamento',
+		'à vista',
+		'a vista',
+		'parcelado',
+		'investimento',
+		'orçamento',
+		// Portuguese - colloquial/street
+		'quanto fica',
+		'quanto custa',
+		'quanto é',
+		'quanto sai',
+		'fica quanto',
+		'sai quanto',
+		'tá quanto',
+		'ta quanto',
+		'qual o valor',
+		'qual valor',
+		'quanto tá',
+		'quanto ta',
+		'pesa quanto',
+		'sai por quanto',
+		'fica por quanto',
+		'mais barato',
+		'mais em conta',
+		'tem desconto',
+		'faz desconto',
+		'menor preço',
+		'melhor preço',
+		'negocia',
+		'negociar',
+		'dá pra baixar',
+		'baixa o preço',
+		'valor mínimo',
+		'mais acessível'
 	],
 	closing: [
+		// English
 		'ready',
 		'buy',
 		'purchase',
 		'sign up',
 		'start',
+		'proceed',
+		"let's do it",
+		"i'll take",
+		'take it',
+		'deal',
+		'where do i sign',
+		"let's close",
+		'i want it',
+		'going for it',
+		'sign me up',
+		'get started',
+		'move forward',
+		// Portuguese - formal
 		'quero fechar',
 		'vamos fazer',
-		'quero contratar'
+		'quero contratar',
+		'quero comprar',
+		'gostaria de adquirir',
+		'gostaria de fechar',
+		'vou contratar',
+		'vou adquirir',
+		'vamos fechar',
+		// Portuguese - colloquial/street
+		'pode fechar',
+		'fecha',
+		'vou levar',
+		'quero esse',
+		'quero essa',
+		'pode ser esse',
+		'pode ser essa',
+		'como faço para adquirir',
+		'como adquirir',
+		'como comprar',
+		'como contratar',
+		'adquirir',
+		'comprar',
+		'contratar',
+		'fechar negócio',
+		'bora',
+		'bora fechar',
+		'vamo nessa',
+		'to dentro',
+		'tô dentro',
+		'quero sim',
+		'vou querer',
+		'me manda',
+		'manda ver',
+		'partiu',
+		'vamo',
+		'vamos lá',
+		'fecha aí',
+		'pode mandar',
+		'manda o contrato',
+		'manda proposta',
+		'onde assino',
+		'como assino'
 	],
-	post_sale: ['support', 'help', 'problem', 'issue', 'question about my', 'suporte', 'ajuda', 'problema']
+	post_sale: [
+		// English
+		'support',
+		'help with my',
+		'problem with',
+		'issue with',
+		'question about my',
+		'already bought',
+		'my order',
+		'my purchase',
+		'warranty',
+		'return',
+		'refund',
+		'complaint',
+		'not working',
+		'broken',
+		// Portuguese - formal
+		'suporte',
+		'ajuda com',
+		'problema com',
+		'dúvida sobre',
+		'já comprei',
+		'meu pedido',
+		'minha compra',
+		'garantia',
+		'devolução',
+		'reclamação',
+		'assistência',
+		// Portuguese - colloquial/street
+		'meu consórcio',
+		'minha carta',
+		'meu contrato',
+		'minha parcela',
+		'não tá funcionando',
+		'não ta funcionando',
+		'deu ruim',
+		'deu problema',
+		'tive um problema',
+		'to com problema',
+		'tô com problema',
+		'preciso de ajuda com',
+		'já sou cliente',
+		'já contratei',
+		'já fechei'
+	]
 };
+
+// Phase priority order: later phases should be detected before earlier ones
+// This prevents "oi, quanto fica" from matching greeting instead of negotiation
+const PHASE_PRIORITY: SalesPhase[] = [
+	'post_sale',
+	'closing',
+	'negotiation',
+	'presentation',
+	'qualification',
+	'greeting'
+];
 
 function detectPhase(message: string, currentPhase: SalesPhase): SalesPhase {
 	const messageLower = message.toLowerCase();
 
-	// Check each phase's indicators
-	for (const [phase, indicators] of Object.entries(PHASE_INDICATORS)) {
+	// Check phases in priority order (later phases first)
+	// This ensures "oi, quanto fica a moto?" detects negotiation, not greeting
+	for (const phase of PHASE_PRIORITY) {
+		const indicators = PHASE_INDICATORS[phase];
 		for (const indicator of indicators) {
 			if (messageLower.includes(indicator)) {
-				return phase as SalesPhase;
+				return phase;
 			}
 		}
 	}
 
-	// Default: stay in current phase or move forward naturally
+	// Default: stay in current phase
 	return currentPhase;
 }
 
