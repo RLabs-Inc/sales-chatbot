@@ -64,6 +64,7 @@ src/lib/server/auth.ts # Session management
 - **Documents Page**: Drag-drop upload with Progress, DocumentCard list, Dialog confirmations
 - **Methodology Page**: Full CRUD for 8 methodology types with Tabs/Accordion UI
 - **Test Chat Page**: Chat with glass-box debugging - shows capsules, methodology, scores, reasoning per message
+- **Test Sessions**: Sidebar list of previous test conversations, load/resume capability, New Chat button
 - **Auth**: Login/registration with session management, logout
 
 ### Component Architecture ✅ (COMPLETED)
@@ -105,8 +106,9 @@ src/lib/hooks/
 
 ### What Still Needs Building
 - **Embeddable Widget** - JavaScript for customer websites (black-box view for customers)
-- **Analytics Dashboard** - Stats and conversation logs
-- **End-to-end Testing** - Test methodology → retrieval → debug display flow
+- **Analytics Dashboard** - Per-chatbot stats, then global overview
+- **Production Conversations** - Separate from test sessions, with customer info, channel, outcome tracking
+- **Railpack Migration** - Replace Nixpacks (deprecated) with Railway's new build system
 
 ### Key Technical Notes
 - Use `claude-opus-4-5` model ID (not with date suffix)
@@ -189,8 +191,48 @@ bun run db:studio    # Drizzle Studio
 ```env
 ANTHROPIC_API_KEY=   # For curation (Opus 4.5)
 OPENAI_API_KEY=      # Optional - user choice
-DATABASE_URL=        # SQLite (default: local.db)
+DATABASE_PATH=       # SQLite (default: .data/local.db - inside volume mount)
 ```
+
+## System Prompt Philosophy (IMPORTANT)
+
+The chatbot system prompt uses **identity portrait** approach, not cold rules:
+
+**Key insight:** Rules create compliance. Identity creates authentic behavior.
+
+Instead of bullet points like "Don't lie", we paint who the chatbot IS:
+- "You are worthy of that trust"
+- "You live by solid principles that show up in your character"
+- "You never lie... because you know that the person who trusted you won't be able to deliver"
+
+The behaviors are **evidence of character**, not requirements to earn trust.
+
+**Hardcoded ethical foundation** in `conversation.ts:buildSystemPrompt()`:
+- Never fabricate information
+- Be transparent about knowledge limits
+- Help people make good decisions, not extract profit
+- Connect them to humans warmly when asked
+
+User configuration (personality, custom instructions) ADDS to this foundation, never replaces it.
+
+**Token limits:** Default 1000, max 5000 (configured in types.ts and settings page)
+
+## Railway Deployment
+
+**Data Persistence:** Both databases in `.data/` directory for Railway volume mount at `/app/.data`:
+- SQLite: `.data/local.db`
+- fsDB: `.data/chatbots/`
+
+**Current build:** Nixpacks (railpack migration planned)
+
+## Test Sessions Feature (NEW)
+
+Sidebar shows test session history:
+- Collapsible "Test Sessions" section
+- Click to load previous conversations
+- "New Chat" button in sidebar AND chat window
+- Sessions marked with `channelType: 'test'` (vs future production 'widget')
+- URL param `?session=id` for deep linking
 
 ## Design Principles
 
