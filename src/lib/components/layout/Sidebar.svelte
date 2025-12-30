@@ -13,20 +13,49 @@
 		username: string;
 	}
 
-	let { user, chatbots = [], currentChatbot = null } = $props<{
+	interface TestSession {
+		id: string;
+		startedAt: number;
+		lastMessageAt: number;
+		messageCount: number;
+		currentPhase: string;
+		status: string;
+	}
+
+	let { user, chatbots = [], currentChatbot = null, testSessions = [] } = $props<{
 		user: UserData;
 		chatbots?: ChatbotData[];
 		currentChatbot?: ChatbotData | null;
+		testSessions?: TestSession[];
 	}>();
 
 	let isCollapsed = $state(false);
 	let showChatbotMenu = $state(false);
+	let showTestSessions = $state(true);
 
 	// Determine active route
 	let currentPath = $derived($page.url.pathname);
+	let currentSessionId = $derived($page.url.searchParams.get('session'));
 	let isOnDashboard = $derived(currentPath === '/dashboard');
 	let isOnChatbotPage = $derived(currentPath.startsWith('/chatbots/'));
+	let isOnTestPage = $derived(currentPath.endsWith('/test'));
 	let chatbotId = $derived(currentChatbot?.id || $page.params.id);
+
+	// Format timestamp for display
+	function formatSessionTime(timestamp: number): string {
+		const date = new Date(timestamp);
+		const now = new Date();
+		const isToday = date.toDateString() === now.toDateString();
+		const isYesterday = new Date(now.getTime() - 86400000).toDateString() === date.toDateString();
+
+		if (isToday) {
+			return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+		} else if (isYesterday) {
+			return 'Yesterday';
+		} else {
+			return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+		}
+	}
 </script>
 
 <aside class="sidebar" class:collapsed={isCollapsed}>
@@ -183,6 +212,52 @@
 					{/if}
 				</a>
 			</div>
+
+			<!-- Test Sessions Section -->
+			{#if !isCollapsed}
+				<div class="nav-section test-sessions-section">
+					<button
+						class="nav-section-header"
+						onclick={() => showTestSessions = !showTestSessions}
+					>
+						<span class="nav-section-label">Test Sessions</span>
+						<svg class="chevron" class:open={showTestSessions} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M6 9l6 6 6-6" />
+						</svg>
+					</button>
+
+					{#if showTestSessions}
+						<!-- New Chat Button -->
+						<a href="/chatbots/{chatbotId}/test" class="new-chat-btn">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							<span>New Chat</span>
+						</a>
+
+						<!-- Session List -->
+						<div class="session-list">
+							{#if testSessions.length === 0}
+								<p class="no-sessions">No test sessions yet</p>
+							{:else}
+								{#each testSessions as session (session.id)}
+									<a
+										href="/chatbots/{chatbotId}/test?session={session.id}"
+										class="session-item"
+										class:active={currentSessionId === session.id}
+									>
+										<div class="session-info">
+											<span class="session-time">{formatSessionTime(session.lastMessageAt)}</span>
+											<span class="session-meta">{session.messageCount} messages</span>
+										</div>
+									</a>
+								{/each}
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/if}
 		{/if}
 	</nav>
 
@@ -475,6 +550,109 @@
 		padding-top: 0.5rem;
 		border-top: 1px solid var(--sidebar-border);
 		margin-top: 0.5rem;
+	}
+
+	/* Test Sessions Section */
+	.test-sessions-section {
+		margin-top: 0.5rem;
+		padding-top: 0.5rem;
+		border-top: 1px solid var(--sidebar-border);
+	}
+
+	.nav-section-header {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 0.75rem;
+		margin-bottom: 0.5rem;
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: var(--color-text-muted);
+	}
+
+	.nav-section-header:hover {
+		color: var(--color-text);
+	}
+
+	.nav-section-header .chevron {
+		transition: transform 0.2s;
+	}
+
+	.nav-section-header .chevron.open {
+		transform: rotate(180deg);
+	}
+
+	.new-chat-btn {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		margin: 0 0.5rem 0.5rem;
+		border-radius: 6px;
+		text-decoration: none;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-accent);
+		background: var(--color-accent-soft);
+		transition: all 0.15s;
+	}
+
+	.new-chat-btn:hover {
+		background: var(--color-accent);
+		color: white;
+	}
+
+	.session-list {
+		max-height: 200px;
+		overflow-y: auto;
+		padding: 0 0.5rem;
+	}
+
+	.no-sessions {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		text-align: center;
+		padding: 0.75rem;
+	}
+
+	.session-item {
+		display: block;
+		padding: 0.5rem 0.75rem;
+		margin-bottom: 0.25rem;
+		border-radius: 6px;
+		text-decoration: none;
+		transition: all 0.15s;
+	}
+
+	.session-item:hover {
+		background: var(--cream-dark);
+	}
+
+	.session-item.active {
+		background: var(--color-accent-soft);
+	}
+
+	.session-info {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.session-time {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-text);
+	}
+
+	.session-item.active .session-time {
+		color: var(--color-accent);
+	}
+
+	.session-meta {
+		font-size: 0.6875rem;
+		color: var(--color-text-muted);
 	}
 
 	/* Footer */

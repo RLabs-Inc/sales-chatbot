@@ -71,13 +71,13 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 			console.log(`[chat] Restored conversation ${conversationId} from fsDB with ${context.messageHistory.length} messages`);
 		} else {
 			// Conversation not found, start new one
-			context = await startConversation(bot, 'test-channel', 'api', locals.user.id);
+			context = await startConversation(bot, 'test-channel', 'test', locals.user.id);
 			activeConversations.set(context.conversationId, context);
 			console.log(`[chat] Started new conversation ${context.conversationId} (requested ${conversationId} not found)`);
 		}
 	} else {
 		// No conversationId provided, start new conversation
-		context = await startConversation(bot, 'test-channel', 'api', locals.user.id);
+		context = await startConversation(bot, 'test-channel', 'test', locals.user.id);
 		activeConversations.set(context.conversationId, context);
 	}
 

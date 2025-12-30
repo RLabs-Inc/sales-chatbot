@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 	import type { MessageDebugInfo } from '$lib/server/chatbot/types';
 	import { PageHeader } from '$lib/components/ui/page-header';
@@ -14,6 +16,7 @@
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import SendIcon from '@lucide/svelte/icons/send';
 	import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 
@@ -26,13 +29,22 @@
 		debugInfo?: MessageDebugInfo;
 	};
 
+	// Initialize from loaded session if available
+	const initialMessages: ChatMessage[] = data.loadedSession?.messages.map(m => ({
+		role: m.role as 'user' | 'assistant',
+		content: m.content
+	})) || [];
+
 	// Chat state
-	let messages = $state<ChatMessage[]>([]);
+	let messages = $state<ChatMessage[]>(initialMessages);
 	let inputValue = $state('');
 	let isStreaming = $state(false);
-	let conversationId = $state<string | null>(null);
-	let currentPhase = $state<string>('greeting');
-	let detectedEmotion = $state<string>('neutral');
+	let conversationId = $state<string | null>(data.loadedSession?.id || null);
+	let currentPhase = $state<string>(data.loadedSession?.currentPhase || 'greeting');
+	let detectedEmotion = $state<string>(data.loadedSession?.detectedEmotion || 'neutral');
+
+	// Track if we're viewing a loaded session (read-only mode indication)
+	let isLoadedSession = $derived(!!$page.url.searchParams.get('session'));
 
 	async function sendMessage() {
 		if (!inputValue.trim() || isStreaming) return;
@@ -120,6 +132,12 @@
 		detectedEmotion = 'neutral';
 	}
 
+	function startNewChat() {
+		// Clear state and navigate to clean URL
+		resetConversation();
+		goto(`/chatbots/${data.chatbot.id}/test`, { replaceState: true });
+	}
+
 	const phaseLabels: Record<string, string> = {
 		greeting: 'Greeting',
 		qualification: 'Understanding Needs',
@@ -191,25 +209,36 @@
 						<p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
 							Conversation
 						</p>
-						<div class="flex items-center gap-2">
+						<div class="flex flex-col gap-2">
 							{#if conversationId}
-								<Badge
-									variant="outline"
-									class="bg-meth-closing/10 text-meth-closing border-meth-closing/30"
-									>Active</Badge
-								>
-								<Button
-									variant="ghost"
-									size="sm"
-									class="h-7 px-2 text-xs"
-									onclick={resetConversation}
-								>
-									<RotateCcwIcon class="mr-1 h-3 w-3" />
-									Reset
-								</Button>
+								<div class="flex items-center gap-2">
+									<Badge
+										variant="outline"
+										class="bg-meth-closing/10 text-meth-closing border-meth-closing/30"
+										>{isLoadedSession ? 'Loaded' : 'Active'}</Badge
+									>
+									<Button
+										variant="ghost"
+										size="sm"
+										class="h-7 px-2 text-xs"
+										onclick={resetConversation}
+									>
+										<RotateCcwIcon class="mr-1 h-3 w-3" />
+										Reset
+									</Button>
+								</div>
 							{:else}
 								<span class="text-sm text-muted-foreground">Start a conversation below</span>
 							{/if}
+							<Button
+								variant="outline"
+								size="sm"
+								class="w-full"
+								onclick={startNewChat}
+							>
+								<PlusIcon class="mr-1.5 h-3.5 w-3.5" />
+								New Chat
+							</Button>
 						</div>
 					</div>
 

@@ -15,6 +15,7 @@
 		user={data.user}
 		chatbots={data.chatbots}
 		currentChatbot={data.currentChatbot}
+		testSessions={data.testSessions}
 	/>
 
 	<!-- Main Content Area -->
