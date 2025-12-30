@@ -37,7 +37,7 @@
 		inset: 0;
 		background:
 			radial-gradient(ellipse 80% 50% at 50% -20%, var(--amber-light) 0%, transparent 50%),
-			radial-gradient(ellipse 60% 40% at 100% 100%, rgba(212, 165, 116, 0.2) 0%, transparent 50%);
+			radial-gradient(ellipse 60% 40% at 100% 100%, oklch(from var(--amber) l c h / 0.2) 0%, transparent 50%);
 		pointer-events: none;
 		z-index: 0;
 	}

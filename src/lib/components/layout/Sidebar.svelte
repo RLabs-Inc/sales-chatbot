@@ -537,8 +537,8 @@
 	}
 
 	.logout-btn:hover {
-		background: #fef2f2;
-		color: #dc2626;
+		background: oklch(from var(--destructive) l c h / 0.1);
+		color: var(--destructive);
 	}
 
 	.collapsed .user-section {

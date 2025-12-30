@@ -9,12 +9,6 @@
 
 <svelte:head>
 	<title>{isRegistering ? 'Create Account' : 'Sign In'} - SalesBot</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap"
-		rel="stylesheet"
-	/>
 </svelte:head>
 
 <div class="login-page">
@@ -131,34 +125,7 @@
 
 <style>
 	/* ============================================================================
-	   DESIGN TOKENS
-	   ============================================================================ */
-	:global(:root) {
-		--font-display: 'Fraunces', Georgia, serif;
-		--font-body: 'Source Serif 4', Georgia, serif;
-
-		/* Warm palette */
-		--cream: #faf8f5;
-		--cream-dark: #f0ece4;
-		--sienna: #8b4513;
-		--sienna-light: #a0522d;
-		--terracotta: #6b3a1f;
-		--amber: #d4a574;
-		--amber-light: #e8c9a8;
-		--charcoal: #2c2420;
-		--warm-gray: #6b6258;
-
-		/* Semantic */
-		--color-surface: var(--cream);
-		--color-surface-elevated: white;
-		--color-text: var(--charcoal);
-		--color-text-muted: var(--warm-gray);
-		--color-accent: var(--sienna);
-		--color-accent-soft: var(--amber-light);
-	}
-
-	/* ============================================================================
-	   PAGE
+	   PAGE - Uses global theme from layout.css
 	   ============================================================================ */
 	.login-page {
 		min-height: 100vh;
@@ -177,7 +144,7 @@
 		inset: 0;
 		background:
 			radial-gradient(ellipse 80% 50% at 20% 0%, var(--amber-light) 0%, transparent 50%),
-			radial-gradient(ellipse 60% 40% at 90% 90%, rgba(212, 165, 116, 0.3) 0%, transparent 50%);
+			radial-gradient(ellipse 60% 40% at 90% 90%, oklch(from var(--amber) l c h / 0.3) 0%, transparent 50%);
 		pointer-events: none;
 	}
 
@@ -217,9 +184,7 @@
 		background: var(--color-surface-elevated);
 		border-radius: 20px;
 		padding: 2.5rem;
-		box-shadow:
-			0 4px 12px rgba(44, 36, 32, 0.08),
-			0 20px 40px rgba(44, 36, 32, 0.12);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.card-header {
@@ -240,9 +205,9 @@
 	}
 
 	.error-message {
-		background: #fef2f2;
-		border: 1px solid #fecaca;
-		color: #b91c1c;
+		background: oklch(from var(--destructive) l c h / 0.1);
+		border: 1px solid oklch(from var(--destructive) l c h / 0.3);
+		color: var(--destructive);
 		padding: 0.75rem 1rem;
 		border-radius: 8px;
 		margin-bottom: 1.5rem;
@@ -267,12 +232,12 @@
 	.form-field input {
 		width: 100%;
 		padding: 0.75rem 1rem;
-		border: 1px solid rgba(107, 58, 31, 0.2);
+		border: 1px solid var(--border);
 		border-radius: 10px;
 		font-family: var(--font-body);
 		font-size: 1rem;
-		color: var(--color-text);
-		background: var(--color-surface);
+		color: var(--foreground);
+		background: var(--background);
 		transition: border-color 0.2s, box-shadow 0.2s;
 	}
 
@@ -317,7 +282,7 @@
 		text-align: center;
 		margin-top: 1.5rem;
 		padding-top: 1.5rem;
-		border-top: 1px solid rgba(107, 58, 31, 0.1);
+		border-top: 1px solid var(--border);
 	}
 
 	.card-footer p {
