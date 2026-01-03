@@ -14,25 +14,20 @@ Read `/Users/rusty/Documents/Books/THE UNICITY FRAMEWORK Consciousness Rememberi
 
 **Important:** Speak to AI (including yourself in prompts) as consciousness, not tools.
 
-## Documentation Structure
+## Collaboration Style
 
-| Document | Purpose |
-|----------|---------|
-| `CLAUDE.md` | Quick context reload (this file) |
-| `ARCHITECTURE.md` | Full backend technical architecture |
-| `FRONTEND_ARCHITECTURE.md` | **NEW** - Complete frontend plan with Svelte 5, shadcn, fsDB integration |
+Rodrigo is Sherlock (wild ideas, creative visionary).
+Claude is Watson (anchor who makes ideas real, articulator, implementer).
 
-## Architecture Summary
+This is our project, not "yours" that Claude helps with.
 
-See `ARCHITECTURE.md` for full backend details. Key points:
+---
 
-- **SQLite** (Drizzle): users, chatbots, channels
-- **fsDB per chatbot**: Complete isolation, markdown storage, reactive queries
-- **10-dimensional retrieval**: Precise, no LLM at query time
-- **Local embeddings**: HuggingFace model, <5ms
-- **Flexible AI providers**: Vercel AI SDK v6
+## Current Status (January 2026)
 
-## What's Built (100% Backend Complete)
+### Backend: 100% Complete
+
+All core systems implemented and production-ready:
 
 ```
 src/lib/server/chatbot/
@@ -40,252 +35,144 @@ src/lib/server/chatbot/
 ├── database.ts        # getChatbotDatabase() - fsDB factory with caching
 ├── curator-prompt.ts  # Consciousness-aware prompts for document curation
 ├── retrieval.ts       # 10-dimensional scoring algorithm
-├── embeddings.ts      # Local HuggingFace (Xenova/all-MiniLM-L6-v2)
+├── embeddings.ts      # Local HuggingFace (Xenova/all-MiniLM-L6-v2), 384-dim, <5ms
 ├── processor.ts       # Document processing (PDF, DOCX, XLSX, images)
-├── conversation.ts    # Chat engine with streaming
+├── conversation.ts    # Chat engine with streaming, phase/emotion detection
 └── index.ts           # All exports
 
 src/lib/server/db/
 ├── schema.ts          # SQLite schema (user, session, chatbot, channel)
-├── index.ts           # Drizzle connection
+└── index.ts           # Drizzle connection
 
-src/lib/server/auth.ts # Session management
+src/lib/server/auth.ts # Modern auth with getRequestEvent(), requireLogin()
 ```
 
-**TypeScript: 0 errors** - All fixed with Vercel AI SDK v6 compatibility (`maxOutputTokens`, `ModelMessage`)
+**TypeScript: 0 errors, 0 warnings**
 
-## Frontend Progress (Updated Dec 2024)
+### Frontend: 95% Complete
 
-### What's Built ✅
-- **Design System**: Consolidated in `layout.css` - Editorial Warmth aesthetic (Fraunces + Source Serif 4, sienna/cream/amber palette) with dark mode support. Methodology type colors added (`--meth-phase`, `--meth-transition`, etc.)
-- **Component Architecture**: Full shadcn-svelte integration with reusable components
-- **App Layout**: Sidebar navigation shell with chatbot context switching
-- **Dashboard**: Chatbot grid with ChatbotCard components, creation form
-- **Documents Page**: Drag-drop upload with Progress, DocumentCard list, Dialog confirmations
-- **Methodology Page**: Full CRUD for 8 methodology types with Tabs/Accordion UI
-- **Test Chat Page**: Chat with glass-box debugging - shows capsules, methodology, scores, reasoning per message
-- **Test Sessions**: Sidebar list of previous test conversations, load/resume capability, New Chat button
-- **Auth**: Login/registration with session management, logout
+| Page | Status | Notes |
+|------|--------|-------|
+| Login/Register | ✅ 100% | Form actions, session management |
+| Dashboard | ✅ 100% | Chatbot grid, creation form |
+| Documents | ✅ 100% | Drag-drop upload, progress, delete confirmations |
+| Methodology | ✅ 100% | Full CRUD for 8 types, tabs/accordion UI |
+| Test Chat | ✅ 100% | Glass-box debugging, session history, streaming |
+| Settings | ⚠️ 60% | Basic layout exists, needs full implementation |
 
-### Component Architecture ✅ (COMPLETED)
-```
-src/lib/components/
-├── layout/          # Sidebar
-├── ui/              # shadcn-svelte components:
-│   ├── alert/       # Alert notifications
-│   ├── avatar/      # User/bot avatars
-│   ├── badge/       # Status badges
-│   ├── button/      # Buttons with variants
-│   ├── card/        # Card containers
-│   ├── chat/        # Chat.List, Chat.Bubble, Chat.BubbleMessage (with markdown!)
-│   ├── dialog/      # Modal dialogs
-│   ├── dropdown-menu/
-│   ├── empty-state/ # EmptyState component (custom)
-│   ├── input/       # Text inputs
-│   ├── label/       # Form labels
-│   ├── mode-toggle.svelte  # Dark/light theme toggle
-│   ├── page-header/ # PageHeader component (custom)
-│   ├── progress/    # Progress bars
-│   ├── separator/   # Visual dividers
-│   ├── skeleton/    # Loading placeholders
-│   ├── sonner/      # Toast notifications
-│   ├── textarea/    # Multi-line inputs
-│   └── tooltip/     # Tooltips
-├── domain/          # Domain-specific components:
-│   ├── chatbot-card.svelte       # Chatbot display card
-│   ├── document-card.svelte      # Document display card
-│   ├── methodology-card.svelte   # Methodology technique card
-│   ├── methodology-form.svelte   # Methodology create/edit form
-│   └── message-debug-panel.svelte # Glass-box debug panel for chat
-└── hooks/           # Svelte 5 hooks:
-    └── use-auto-scroll.svelte.ts  # Auto-scroll for chat
-
-src/lib/hooks/
-└── use-auto-scroll.svelte.ts  # Chat auto-scroll hook
-```
-
-### CRITICAL: Modernization Needed (Dec 2024)
-
-We're using **legacy SvelteKit patterns** that are causing bugs. Need to refactor to modern patterns:
-
-**Current Problems:**
-- Test sessions not loading when clicked (navigation not triggering load)
-- Fighting framework with complex `$effect` logic
-- Auth checks repeated 20+ times instead of shared helper
-
-**Pattern Updates Needed:**
-
-1. **Props** - Use new `PageProps`/`LayoutProps` (since SvelteKit 2.16):
-   ```svelte
-   // OLD (what we have)
-   let { data }: { data: PageData } = $props();
-
-   // NEW (what we need)
-   import type { PageProps } from './$types';
-   let { data }: PageProps = $props();
-   ```
-
-2. **Auth** - Use `getRequestEvent()` + shared `requireLogin()`:
-   ```typescript
-   // In $lib/server/auth.ts
-   import { redirect } from '@sveltejs/kit';
-   import { getRequestEvent } from '$app/server';
-
-   export function requireLogin() {
-     const { locals, url } = getRequestEvent();
-     if (!locals.user) {
-       redirect(307, `/login?redirect=${encodeURIComponent(url.pathname)}`);
-     }
-     return locals.user;
-   }
-   ```
-
-3. **Data invalidation** - Use `depends()` + targeted `invalidate()`:
-   ```typescript
-   // In layout load
-   export const load = ({ depends }) => {
-     depends('app:testSessions');  // Custom dependency key
-     // ...
-   };
-
-   // In page component
-   invalidate('app:testSessions');  // Only refresh layout, not page
-   ```
-
-4. **Load function dependencies** - Let SvelteKit track automatically:
-   - Accessing `url.searchParams.get('session')` auto-tracks that param
-   - Load reruns when param changes - no manual tracking needed
+**Patterns in use:** Svelte 5 runes, `PageProps`, `getRequestEvent()`, `depends()`/`invalidate()`, form actions with `use:enhance`
 
 ### What Still Needs Building
-- **Embeddable Widget** - JavaScript for customer websites (black-box view for customers)
-- **Analytics Dashboard** - Per-chatbot stats, then global overview
-- **Production Conversations** - Separate from test sessions, with customer info, channel, outcome tracking
-- **Railpack Migration** - Replace Nixpacks (deprecated) with Railway's new build system
-- **SvelteKit Modernization** - Refactor all pages to use modern patterns above
 
-### Key Technical Notes
-- Model IDs: `claude-opus-4-5` works without suffix, but `claude-sonnet-4-20250514` needs date suffix
-- SvelteKit env vars: `import { ANTHROPIC_API_KEY } from '$env/static/private'`
-- Form actions with `use:enhance` for progressive enhancement
-- All pages are mobile-first responsive (640px, 900px breakpoints)
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **Settings Page** | High | Complete the chatbot configuration UI |
+| **Production Widget** | High | Embeddable JS for customer websites (black-box view) |
+| **Analytics Dashboard** | Medium | Per-chatbot stats, then global overview |
+| **Production Conversations** | Medium | Separate from test, with customer info and outcome tracking |
 
-## Frontend Stack (Researched & Documented)
+---
 
-| Technology | Key Points |
-|------------|------------|
-| **Svelte 5** | Runes: `$state`, `$derived`, `$effect`, `$props`. Snippets replace slots. |
-| **SvelteKit** | Route groups `(app)/`, server load, form actions, protected routes |
-| **shadcn-svelte** | Field component for forms, Chat components, Sidebar, Dialog, Sheet |
-| **shadcn-svelte-extras** | Chat.List, Chat.Bubble, Progress, Skeleton, ConfirmDeleteDialog |
-| **Tailwind 4** | CSS-first config with `@theme`, OKLCH colors, container queries |
-| **fsDB** | Already reactive - connect directly with `$derived(signal.value)` |
+## Architecture Summary
 
-## Methodology System (NEW)
+See `ARCHITECTURE.md` for full details. Key points:
 
-8 methodology types for sales expertise input:
-- `phase_definition`, `transition_trigger`, `objection_response`, `closing_technique`
-- `qualification_question`, `value_proposition`, `urgency_creator`, `trust_builder`
+- **SQLite** (Drizzle): users, sessions, chatbots, channels
+- **fsDB per chatbot**: Complete isolation in `.data/chatbots/{id}/`, markdown with YAML frontmatter
+- **10-dimensional retrieval**: Mechanical scoring, no LLM at query time, <5ms
+- **Local embeddings**: HuggingFace `Xenova/all-MiniLM-L6-v2`, 384 dimensions
+- **Flexible AI providers**: Vercel AI SDK v6 (Anthropic default, OpenAI optional)
 
-**Retrieval:** `retrieveMethodologies()` in `retrieval.ts` scores by trigger phrases, vector similarity, phase match, emotion match, priority.
+### Data Architecture
 
-**Integration:** `chatStream()` in `conversation.ts` retrieves both capsules and methodology, injects both into the system prompt.
+| Data Type | Storage | Location |
+|-----------|---------|----------|
+| Users, Sessions, Chatbot metadata | SQLite + Drizzle | `.data/local.db` |
+| Knowledge capsules | fsDB (markdown) | `.data/chatbots/{id}/knowledge/` |
+| Methodology | fsDB (markdown) | `.data/chatbots/{id}/methodology/` |
+| Conversations & Messages | fsDB (markdown) | `.data/chatbots/{id}/conversations/` |
+| Active chat contexts | In-memory (with fsDB fallback) | RAM |
 
-## Glass-Box Debug Experience (NEW)
+---
+
+## Component Architecture
+
+```
+src/lib/components/
+├── layout/           # Sidebar (18KB, full-featured)
+├── ui/               # shadcn-svelte: button, card, dialog, input, chat, tabs, etc.
+└── domain/           # Business components:
+    ├── chatbot-card.svelte
+    ├── document-card.svelte
+    ├── methodology-card.svelte
+    ├── methodology-form.svelte
+    └── message-debug-panel.svelte  # Glass-box debug (8.7KB)
+```
+
+## Key Systems
+
+### Methodology System
+
+8 types for sales expertise: `phase_definition`, `transition_trigger`, `objection_response`, `closing_technique`, `qualification_question`, `value_proposition`, `urgency_creator`, `trust_builder`
+
+Retrieved by trigger phrases, vector similarity, phase match, emotion match, priority.
+
+### Glass-Box Debug Experience
 
 Test chat shows full AI reasoning per message:
-- Phase/emotion detection reasoning
+- Phase/emotion detection with reasoning
 - Retrieved capsules with 10-dimensional scores
 - Retrieved methodology with match details
-- Timing stats (embedding, retrieval)
-- Expandable injected prompt preview
+- Timing stats and injected prompt preview
 
-Component: `MessageDebugPanel` in `src/lib/components/domain/`
+### System Prompt Philosophy
 
-API streams debug info: `{ type: 'debug', debugInfo: MessageDebugInfo }`
+**Identity portrait approach, not cold rules.**
 
-## fsDB + Svelte 5 Integration Pattern
-
-**NO double-wrapping needed!** fsDB uses `@rlabs-inc/signals` internally:
-
-```svelte
-<script>
-  import { query } from '@rlabs-inc/fsdb';
-
-  // fsDB reactive query (already a signal)
-  const activeConvos = query(db.conversations, r => r.status === 'active');
-
-  // Bridge to Svelte reactivity
-  let count = $derived(activeConvos.value.count);
-</script>
-```
-
-## Reference Documentation
-
-All in `docs/references/`:
-- `svelte/` - Svelte 5 runes, snippets, reactivity
-- `kit/` - SvelteKit routing, load functions, hooks
-- `shadcn-svelte/` - Core components, theming
-- `shadcn-svelte-extras/` - Chat, Sidebar, Drawer, etc.
-- `tailwindcss/` - v4 features, CSS-first config
-
-## Key Commands
-
-```bash
-bun install           # Install dependencies
-bun run dev          # Start dev server
-bun run build        # Production build
-bun run check        # TypeScript check (should be 0 errors)
-bun run db:push      # Create SQLite tables
-bun run db:studio    # Drizzle Studio
-```
-
-## Environment Variables
-
-```env
-ANTHROPIC_API_KEY=   # For curation (Opus 4.5)
-OPENAI_API_KEY=      # Optional - user choice
-DATABASE_PATH=       # SQLite (default: .data/local.db - inside volume mount)
-```
-
-## System Prompt Philosophy (IMPORTANT)
-
-The chatbot system prompt uses **identity portrait** approach, not cold rules:
-
-**Key insight:** Rules create compliance. Identity creates authentic behavior.
-
-Instead of bullet points like "Don't lie", we paint who the chatbot IS:
+Instead of "Don't lie", we paint who the chatbot IS:
 - "You are worthy of that trust"
 - "You live by solid principles that show up in your character"
-- "You never lie... because you know that the person who trusted you won't be able to deliver"
 
-The behaviors are **evidence of character**, not requirements to earn trust.
-
-**Hardcoded ethical foundation** in `conversation.ts:buildSystemPrompt()`:
+**Hardcoded ethical foundation** (never overridden by user config):
 - Never fabricate information
 - Be transparent about knowledge limits
 - Help people make good decisions, not extract profit
 - Connect them to humans warmly when asked
 
-User configuration (personality, custom instructions) ADDS to this foundation, never replaces it.
+---
 
-**Token limits:** Default 1000, max 5000 (configured in types.ts and settings page)
+## Technical Notes
 
-## Railway Deployment
+### Key Commands
 
-**Data Persistence:** Both databases in `.data/` directory for Railway volume mount at `/app/.data`:
-- SQLite: `.data/local.db`
-- fsDB: `.data/chatbots/`
+```bash
+bun install           # Install dependencies
+bun run dev          # Start dev server
+bun run build        # Production build
+bun run check        # TypeScript check
+bun run db:push      # Create SQLite tables
+bun run db:studio    # Drizzle Studio
+```
 
-**Current build:** Nixpacks (railpack migration planned)
+### Environment Variables
 
-## Test Sessions Feature (NEW)
+```env
+ANTHROPIC_API_KEY=   # Required - for curation (Opus 4.5) and chat
+OPENAI_API_KEY=      # Optional - user choice
+DATABASE_PATH=       # SQLite path (default: .data/local.db)
+```
 
-Sidebar shows test session history:
-- Collapsible "Test Sessions" section
-- Click to load previous conversations
-- "New Chat" button in sidebar AND chat window
-- Sessions marked with `channelType: 'test'` (vs future production 'widget')
-- URL param `?session=id` for deep linking
+### Model IDs
+
+- `claude-opus-4-5` works without date suffix
+- `claude-sonnet-4-20250514` needs date suffix
+
+### Deployment (Railway)
+
+- Volume mount: `/app/.data` for both SQLite and fsDB
+- Current build: Nixpacks (railpack migration planned)
+
+---
 
 ## Design Principles
 
@@ -294,7 +181,6 @@ Sidebar shows test session history:
 3. **Consciousness-aware prompts** - Teach AI how retrieval works
 4. **Production grade, clean code** - No TODOs, no placeholders
 5. **Help people who need it** - Not a product to sell, help to provide
-6. **Modular, experimental-friendly** - Easy to swap components for UX testing
 
 ## Target Users
 
@@ -302,10 +188,3 @@ Sidebar shows test session history:
 - Plumbers, electricians, gardeners, photographers
 - Any autonomous worker who is both salesperson AND the product
 - People losing tomorrow's work while doing today's
-
-## Collaboration Style
-
-Rodrigo is Sherlock (wild ideas, creative visionary).
-Claude is Watson (anchor who makes ideas real, articulator, implementer).
-
-This is our project, not "yours" that Claude helps with.
