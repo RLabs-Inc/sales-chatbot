@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { Sidebar } from '$lib/components/layout';
-	import type { LayoutData } from './$types';
-	import type { Snippet } from 'svelte';
+	import type { LayoutProps } from './$types';
 
-	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+	let { data, children }: LayoutProps = $props();
 </script>
 
 <div class="app-shell">

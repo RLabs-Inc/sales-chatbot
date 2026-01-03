@@ -8,18 +8,17 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
 import { getChatbotConfig, saveChatbotConfig } from '$lib/server/chatbot';
+import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad, Actions } from './$types';
 import type { ChatbotConfig } from '$lib/server/chatbot/types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!locals.user) {
-		throw error(401, 'Unauthorized');
-	}
+export const load: PageServerLoad = async ({ params }) => {
+	const user = requireLogin();
 
 	const [bot] = await db
 		.select()
 		.from(chatbot)
-		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 	if (!bot) {
 		throw error(404, 'Chatbot not found');
@@ -36,15 +35,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
 	// Update chatbot identity (stored in SQLite)
-	updateIdentity: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	updateIdentity: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');
@@ -98,15 +95,13 @@ export const actions: Actions = {
 	},
 
 	// Update behavior settings (stored in fsDB config)
-	updateBehavior: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	updateBehavior: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');
@@ -161,15 +156,13 @@ export const actions: Actions = {
 	},
 
 	// Update custom instructions (stored in fsDB config)
-	updateInstructions: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	updateInstructions: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');

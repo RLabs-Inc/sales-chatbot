@@ -8,17 +8,19 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
 import { getChatbotDatabase, deleteDocumentCapsules } from '$lib/server/chatbot';
+import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!locals.user) {
-		throw error(401, 'Unauthorized');
-	}
+export const load: PageServerLoad = async ({ params, depends }) => {
+	const user = requireLogin();
+
+	// Track dependency for targeted invalidation (instead of invalidateAll)
+	depends('app:documents');
 
 	const [bot] = await db
 		.select()
 		.from(chatbot)
-		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 	if (!bot) {
 		throw error(404, 'Chatbot not found');
@@ -68,15 +70,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 };
 
 export const actions: Actions = {
-	delete: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	delete: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');

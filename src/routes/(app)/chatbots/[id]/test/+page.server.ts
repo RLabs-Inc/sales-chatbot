@@ -7,6 +7,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
 import { getChatbotStats, getChatbotDatabase } from '$lib/server/chatbot';
+import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad } from './$types';
 
 export interface LoadedMessage {
@@ -21,15 +22,17 @@ export interface LoadedSession {
 	detectedEmotion: string;
 }
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
-	if (!locals.user) {
-		throw error(401, 'Unauthorized');
-	}
+export const load: PageServerLoad = async ({ params, url, depends }) => {
+	const user = requireLogin();
+
+	// Track dependencies for targeted invalidation
+	depends('app:testSessions'); // For sidebar session list refresh
+	depends('app:testSession:current'); // For current session reload on URL param change
 
 	const [bot] = await db
 		.select()
 		.from(chatbot)
-		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 	if (!bot) {
 		throw error(404, 'Chatbot not found');
@@ -57,10 +60,13 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const sessionId = url.searchParams.get('session');
 	let loadedSession: LoadedSession | null = null;
 
+	console.log(`[test page load] sessionId=${sessionId}`);
+
 	if (sessionId) {
 		try {
-			// Load conversation
-			const conversation = chatbotDb.conversations.find(sessionId);
+			// Load conversation by ID (use get() not find())
+			const conversation = chatbotDb.conversations.get(sessionId);
+			console.log(`[test page load] conversation found:`, !!conversation);
 			if (conversation) {
 				// Load messages for this conversation
 				const allMessages = chatbotDb.messages.all();
@@ -80,9 +86,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 					currentPhase: conversation.currentPhase as string || 'greeting',
 					detectedEmotion: 'neutral'
 				};
+				console.log(`[test page load] loaded ${sessionMessages.length} messages`);
 			}
-		} catch {
-			// Session not found, that's okay
+		} catch (err) {
+			console.error(`[test page load] Error loading session:`, err);
 		}
 	}
 

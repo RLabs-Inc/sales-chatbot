@@ -1101,6 +1101,7 @@ export async function chatStream(
 				injectedKnowledge: '',
 				injectedMethodology: '',
 				retrievalTimeMs: 0,
+				methRetrievalTimeMs: 0,
 				embeddingTimeMs: 0
 			}
 		};
@@ -1174,6 +1175,7 @@ export async function chatStream(
 	});
 
 	// Retrieve methodologies
+	const methRetrievalStart = performance.now();
 	const allMethodologies = db.methodology.all();
 	const scoredMethodologies = retrieveMethodologies(
 		allMethodologies as Array<{ id: string; content: string } & import('./types').MethodologySchema>,
@@ -1186,6 +1188,7 @@ export async function chatStream(
 		undefined, // No type filter - get all relevant types
 		5 // Max 5 methodologies
 	);
+	const methRetrievalTimeMs = performance.now() - methRetrievalStart;
 
 	// Build methodology debug info
 	const methodologyDebugInfo: MethodologyDebugInfo[] = scoredMethodologies.map((sm) => {
@@ -1271,6 +1274,7 @@ export async function chatStream(
 			injectedKnowledge: retrievedKnowledge,
 			injectedMethodology: retrievedMethodology,
 			retrievalTimeMs,
+			methRetrievalTimeMs,
 			embeddingTimeMs
 		}
 	};
@@ -1283,7 +1287,7 @@ export async function chatStream(
 export async function startConversation(
 	chatbot: Chatbot,
 	channelId: string,
-	channelType: 'web_widget' | 'whatsapp' | 'telegram' | 'api',
+	channelType: 'web_widget' | 'whatsapp' | 'telegram' | 'api' | 'test',
 	customerIdentifier?: string,
 	providerConfig?: ProviderConfig
 ): Promise<ConversationContext> {

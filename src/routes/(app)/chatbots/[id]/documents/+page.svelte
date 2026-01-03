@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
-	import type { PageData, ActionData } from './$types';
+	import { invalidate } from '$app/navigation';
+	import type { PageProps } from './$types';
 	import { PageHeader } from '$lib/components/ui/page-header';
 	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { DocumentCard } from '$lib/components/domain';
@@ -18,7 +18,7 @@
 	import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 	import TargetIcon from '@lucide/svelte/icons/target';
 
-	let { data, form } = $props<{ data: PageData; form: ActionData }>();
+	let { data, form }: PageProps = $props();
 
 	// Upload state
 	let files = $state<FileList | null>(null);
@@ -107,7 +107,7 @@
 			}
 
 			uploadProgress = 100;
-			await invalidateAll();
+			await invalidate('app:documents');
 
 			setTimeout(() => {
 				uploadSuccess = null;
@@ -295,7 +295,7 @@
 				showDeleteConfirm = false;
 				return async ({ result }) => {
 					if (result.type === 'success') {
-						await invalidateAll();
+						await invalidate('app:documents');
 					}
 					deletingDocument = null;
 				};

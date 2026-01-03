@@ -16,8 +16,6 @@
 	};
 
 	let { debugInfo, defaultOpen = false }: Props = $props();
-	// eslint-disable-next-line svelte/state-referenced-locally -- intentional: defaultOpen only sets initial state
-	let isOpen = $state(defaultOpen);
 
 	function formatScore(score: number): string {
 		return (score * 100).toFixed(0) + '%';
@@ -39,13 +37,13 @@
 	};
 </script>
 
-<Collapsible.Root bind:open={isOpen} class="mt-2">
+<Collapsible.Root bind:open={defaultOpen} class="mt-2">
 	<Collapsible.Trigger
 		class="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 	>
 		<BrainIcon class="h-3 w-3" />
 		Glass Box
-		<span class="transition-transform" class:rotate-180={isOpen}><ChevronDownIcon class="h-3 w-3" /></span>
+		<span class="transition-transform" class:rotate-180={defaultOpen}><ChevronDownIcon class="h-3 w-3" /></span>
 		<span class="ml-1 text-muted-foreground/60">
 			{debugInfo.capsules.length} caps · {debugInfo.methodologies.length} meth · {formatMs(debugInfo.retrievalTimeMs)}
 		</span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData, ActionData } from './$types';
+	import type { PageProps } from './$types';
 	import { PageHeader } from '$lib/components/ui/page-header';
 	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { MethodologyCard, MethodologyForm } from '$lib/components/domain';
@@ -22,7 +22,7 @@
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data, form }: PageProps = $props();
 
 	// Dialog state
 	let isCreateOpen = $state(false);
@@ -102,8 +102,9 @@
 					{#each Object.entries(typeConfig) as [typeKey, config] (typeKey)}
 						{@const methType = typeKey as MethodologyType}
 						{@const count = data.methodologiesByType[methType]?.length || 0}
+						{@const TabIcon = config.icon}
 						<Tabs.Trigger value={methType} class="flex items-center gap-1.5 text-xs sm:text-sm">
-							<svelte:component this={config.icon} class="h-3.5 w-3.5" />
+							<TabIcon class="h-3.5 w-3.5" />
 							<span class="hidden lg:inline">{config.label}</span>
 							{#if count > 0}
 								<Badge variant="secondary" class="h-5 min-w-5 text-xs">{count}</Badge>
@@ -114,12 +115,13 @@
 
 				{#each Object.entries(typeConfig) as [typeKey, config] (typeKey)}
 					{@const methType = typeKey as MethodologyType}
+					{@const ContentIcon = config.icon}
 					<Tabs.Content value={methType}>
 						<Card.Root>
 							<Card.Header class="pb-3">
 								<div class="flex items-center gap-3">
 									<div class={`rounded-lg p-2 text-white ${config.color}`}>
-										<svelte:component this={config.icon} class="h-5 w-5" />
+										<ContentIcon class="h-5 w-5" />
 									</div>
 									<Card.Title class="font-display">{config.label}</Card.Title>
 								</div>
@@ -134,7 +136,7 @@
 										</Button>
 									</div>
 								{:else}
-									<Accordion.Root class="w-full">
+									<Accordion.Root type="single" class="w-full">
 										{#each data.methodologiesByType[methType] as methodology}
 											<Accordion.Item value={methodology.id}>
 												<Accordion.Trigger class="hover:no-underline">

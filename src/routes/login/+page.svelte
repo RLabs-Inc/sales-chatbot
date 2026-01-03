@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData, PageData } from './$types';
+	import type { PageProps } from './$types';
 
-	let { data, form } = $props<{ data: PageData; form: ActionData }>();
+	let { data, form }: PageProps = $props();
 
 	let isRegistering = $state(false);
 </script>

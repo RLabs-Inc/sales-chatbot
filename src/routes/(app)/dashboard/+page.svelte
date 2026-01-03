@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageData, ActionData } from './$types';
+	import type { PageProps } from './$types';
 	import { PageHeader } from '$lib/components/ui/page-header';
 	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { ChatbotCard } from '$lib/components/domain';
@@ -15,7 +15,7 @@
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 
-	let { data, form } = $props<{ data: PageData; form: ActionData }>();
+	let { data, form }: PageProps = $props();
 
 	let showNewForm = $state(false);
 	let isSubmitting = $state(false);

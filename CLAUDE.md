@@ -104,14 +104,67 @@ src/lib/hooks/
 └── use-auto-scroll.svelte.ts  # Chat auto-scroll hook
 ```
 
+### CRITICAL: Modernization Needed (Dec 2024)
+
+We're using **legacy SvelteKit patterns** that are causing bugs. Need to refactor to modern patterns:
+
+**Current Problems:**
+- Test sessions not loading when clicked (navigation not triggering load)
+- Fighting framework with complex `$effect` logic
+- Auth checks repeated 20+ times instead of shared helper
+
+**Pattern Updates Needed:**
+
+1. **Props** - Use new `PageProps`/`LayoutProps` (since SvelteKit 2.16):
+   ```svelte
+   // OLD (what we have)
+   let { data }: { data: PageData } = $props();
+
+   // NEW (what we need)
+   import type { PageProps } from './$types';
+   let { data }: PageProps = $props();
+   ```
+
+2. **Auth** - Use `getRequestEvent()` + shared `requireLogin()`:
+   ```typescript
+   // In $lib/server/auth.ts
+   import { redirect } from '@sveltejs/kit';
+   import { getRequestEvent } from '$app/server';
+
+   export function requireLogin() {
+     const { locals, url } = getRequestEvent();
+     if (!locals.user) {
+       redirect(307, `/login?redirect=${encodeURIComponent(url.pathname)}`);
+     }
+     return locals.user;
+   }
+   ```
+
+3. **Data invalidation** - Use `depends()` + targeted `invalidate()`:
+   ```typescript
+   // In layout load
+   export const load = ({ depends }) => {
+     depends('app:testSessions');  // Custom dependency key
+     // ...
+   };
+
+   // In page component
+   invalidate('app:testSessions');  // Only refresh layout, not page
+   ```
+
+4. **Load function dependencies** - Let SvelteKit track automatically:
+   - Accessing `url.searchParams.get('session')` auto-tracks that param
+   - Load reruns when param changes - no manual tracking needed
+
 ### What Still Needs Building
 - **Embeddable Widget** - JavaScript for customer websites (black-box view for customers)
 - **Analytics Dashboard** - Per-chatbot stats, then global overview
 - **Production Conversations** - Separate from test sessions, with customer info, channel, outcome tracking
 - **Railpack Migration** - Replace Nixpacks (deprecated) with Railway's new build system
+- **SvelteKit Modernization** - Refactor all pages to use modern patterns above
 
 ### Key Technical Notes
-- Use `claude-opus-4-5` model ID (not with date suffix)
+- Model IDs: `claude-opus-4-5` works without suffix, but `claude-sonnet-4-20250514` needs date suffix
 - SvelteKit env vars: `import { ANTHROPIC_API_KEY } from '$env/static/private'`
 - Form actions with `use:enhance` for progressive enhancement
 - All pages are mobile-first responsive (640px, 900px breakpoints)

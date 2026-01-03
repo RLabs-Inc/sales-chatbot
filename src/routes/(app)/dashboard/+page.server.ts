@@ -7,13 +7,16 @@ import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
 import { getChatbotDatabase, saveChatbotConfig } from '$lib/server/chatbot';
+import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async () => {
+	const user = requireLogin();
+
 	const chatbots = await db
 		.select()
 		.from(chatbot)
-		.where(eq(chatbot.userId, locals.user!.id))
+		.where(eq(chatbot.userId, user.id))
 		.orderBy(chatbot.updatedAt);
 
 	return {
@@ -22,10 +25,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+	create: async ({ request }) => {
+		const user = requireLogin();
 
 		const formData = await request.formData();
 		const name = formData.get('name') as string;
@@ -61,7 +62,7 @@ export const actions: Actions = {
 			// Create chatbot record
 			await db.insert(chatbot).values({
 				id,
-				userId: locals.user.id,
+				userId: user.id,
 				name,
 				productName,
 				productType: productType || 'product',

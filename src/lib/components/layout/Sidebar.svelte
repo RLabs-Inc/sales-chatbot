@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	interface ChatbotData {
 		id: string;
@@ -33,13 +33,13 @@
 	let showChatbotMenu = $state(false);
 	let showTestSessions = $state(true);
 
-	// Determine active route
-	let currentPath = $derived($page.url.pathname);
-	let currentSessionId = $derived($page.url.searchParams.get('session'));
+	// Determine active route - using $app/state (reactive without $ prefix)
+	let currentPath = $derived(page.url.pathname);
+	let currentSessionId = $derived(page.url.searchParams.get('session'));
 	let isOnDashboard = $derived(currentPath === '/dashboard');
 	let isOnChatbotPage = $derived(currentPath.startsWith('/chatbots/'));
 	let isOnTestPage = $derived(currentPath.endsWith('/test'));
-	let chatbotId = $derived(currentChatbot?.id || $page.params.id);
+	let chatbotId = $derived(currentChatbot?.id || page.params.id);
 
 	// Format timestamp for display
 	function formatSessionTime(timestamp: number): string {
@@ -724,14 +724,10 @@
 		padding: 0.5rem;
 	}
 
-	/* Mobile */
+	/* Mobile - sidebar hidden by default, would need hamburger menu to show */
 	@media (max-width: 768px) {
 		.sidebar {
 			transform: translateX(-100%);
-		}
-
-		.sidebar.open {
-			transform: translateX(0);
 		}
 	}
 </style>

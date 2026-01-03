@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import type { PageData } from './$types';
+	import { goto, invalidate } from '$app/navigation';
+	import { page } from '$app/state';
+	import type { PageProps } from './$types';
 	import type { MessageDebugInfo } from '$lib/server/chatbot/types';
 	import { PageHeader } from '$lib/components/ui/page-header';
 	import { EmptyState } from '$lib/components/ui/empty-state';
@@ -20,7 +20,7 @@
 	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 
-	let { data } = $props<{ data: PageData }>();
+	let { data }: PageProps = $props();
 
 	// Message with optional debug info
 	type ChatMessage = {
@@ -29,22 +29,47 @@
 		debugInfo?: MessageDebugInfo;
 	};
 
-	// Initialize from loaded session if available
-	const initialMessages: ChatMessage[] = data.loadedSession?.messages.map(m => ({
-		role: m.role as 'user' | 'assistant',
-		content: m.content
-	})) || [];
-
 	// Chat state
-	let messages = $state<ChatMessage[]>(initialMessages);
+	let messages = $state<ChatMessage[]>([]);
 	let inputValue = $state('');
 	let isStreaming = $state(false);
-	let conversationId = $state<string | null>(data.loadedSession?.id || null);
-	let currentPhase = $state<string>(data.loadedSession?.currentPhase || 'greeting');
-	let detectedEmotion = $state<string>(data.loadedSession?.detectedEmotion || 'neutral');
+	let conversationId = $state<string | null>(null);
+	let currentPhase = $state<string>('greeting');
+	let detectedEmotion = $state<string>('neutral');
 
 	// Track if we're viewing a loaded session (read-only mode indication)
-	let isLoadedSession = $derived(!!$page.url.searchParams.get('session'));
+	let isLoadedSession = $derived(!!page.url.searchParams.get('session'));
+
+	// Track the loaded session ID to detect when SvelteKit loads a new session
+	// SvelteKit automatically reruns the load function when URL params change
+	let lastLoadedSessionId = $state<string | null>(null);
+
+	// Sync state when data.loadedSession changes (navigation detected by SvelteKit)
+	$effect(() => {
+		const newSessionId = data.loadedSession?.id ?? null;
+
+		// Only sync if we're navigating to a DIFFERENT session
+		if (newSessionId !== lastLoadedSessionId) {
+			lastLoadedSessionId = newSessionId;
+
+			if (data.loadedSession) {
+				// Loading an existing session from sidebar click
+				messages = data.loadedSession.messages.map((m) => ({
+					role: m.role as 'user' | 'assistant',
+					content: m.content
+				}));
+				conversationId = data.loadedSession.id;
+				currentPhase = data.loadedSession.currentPhase;
+				detectedEmotion = data.loadedSession.detectedEmotion;
+			} else {
+				// New chat - reset to defaults (URL has no session param)
+				messages = [];
+				conversationId = null;
+				currentPhase = 'greeting';
+				detectedEmotion = 'neutral';
+			}
+		}
+	});
 
 	async function sendMessage() {
 		if (!inputValue.trim() || isStreaming) return;
@@ -84,6 +109,10 @@
 						try {
 							const eventData = JSON.parse(line.slice(6));
 							if (eventData.type === 'conversation_id') {
+								// If this is a new session, refresh sidebar only (not page)
+								if (!conversationId && eventData.id) {
+									invalidate('app:testSessions');
+								}
 								conversationId = eventData.id;
 							} else if (eventData.type === 'chunk') {
 								assistantMessage += eventData.content;

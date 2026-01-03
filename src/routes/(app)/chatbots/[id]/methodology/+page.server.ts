@@ -7,18 +7,20 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
 import { getChatbotDatabase, embed } from '$lib/server/chatbot';
+import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad, Actions } from './$types';
 import type { MethodologySchema, MethodologyType, SalesPhase, EmotionalResonance } from '$lib/server/chatbot/types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!locals.user) {
-		throw error(401, 'Unauthorized');
-	}
+export const load: PageServerLoad = async ({ params, depends }) => {
+	const user = requireLogin();
+
+	// Track dependency for targeted invalidation
+	depends('app:methodology');
 
 	const [bot] = await db
 		.select()
 		.from(chatbot)
-		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+		.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 	if (!bot) {
 		throw error(404, 'Chatbot not found');
@@ -64,15 +66,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
 	// Create a new methodology entry
-	create: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	create: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');
@@ -151,15 +151,13 @@ export const actions: Actions = {
 	},
 
 	// Update an existing methodology
-	update: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	update: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');
@@ -215,15 +213,13 @@ export const actions: Actions = {
 	},
 
 	// Delete a methodology
-	delete: async ({ request, locals, params }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+	delete: async ({ request, params }) => {
+		const user = requireLogin();
 
 		const [bot] = await db
 			.select()
 			.from(chatbot)
-			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, locals.user.id)));
+			.where(and(eq(chatbot.id, params.id), eq(chatbot.userId, user.id)));
 
 		if (!bot) {
 			throw error(404, 'Chatbot not found');

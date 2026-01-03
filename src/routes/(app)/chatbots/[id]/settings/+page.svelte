@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageData, ActionData } from './$types';
+	import type { PageProps } from './$types';
 	import { PageHeader } from '$lib/components/ui/page-header';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -14,7 +14,7 @@
 	import SlidersIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square-plus';
 
-	let { data, form } = $props<{ data: PageData; form: ActionData }>();
+	let { data, form }: PageProps = $props();
 
 	// Form submission states
 	let savingIdentity = $state(false);

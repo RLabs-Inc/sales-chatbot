@@ -407,5 +407,6 @@ export interface MessageDebugInfo {
 
 	// Timing
 	retrievalTimeMs: number;
+	methRetrievalTimeMs: number;
 	embeddingTimeMs: number;
 }

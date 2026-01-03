@@ -1,4 +1,5 @@
-import type { RequestEvent } from '@sveltejs/kit';
+import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { getRequestEvent } from '$app/server';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
@@ -78,4 +79,35 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
 		path: '/'
 	});
+}
+
+// ============================================================================
+// CENTRALIZED AUTH HELPERS - Use these instead of manual checks
+// ============================================================================
+
+/**
+ * Requires the user to be logged in. If not, redirects to login.
+ * Call this at the start of any server load function or form action.
+ *
+ * @returns The authenticated user object
+ * @throws Redirect to /login if not authenticated
+ */
+export function requireLogin() {
+	const { locals, url } = getRequestEvent();
+
+	if (!locals.user) {
+		const redirectTo = url.pathname + url.search;
+		redirect(307, `/login?redirect=${encodeURIComponent(redirectTo)}`);
+	}
+
+	return locals.user;
+}
+
+/**
+ * Gets the current user if logged in, or null if not.
+ * Use this for pages that work for both logged-in and anonymous users.
+ */
+export function getUser() {
+	const { locals } = getRequestEvent();
+	return locals.user;
 }
