@@ -1,24 +1,25 @@
+import type { WithChildren, WithoutChildren } from 'bits-ui';
 import type { HTMLAttributes } from 'svelte/elements';
-import type { Snippet } from 'svelte';
 
-export type ChatListProps = {
+export type ChatListPropsWithoutHTML = WithChildren<{
 	ref?: HTMLDivElement | null;
-	children?: Snippet;
-	class?: string;
-} & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
+}>;
 
-export type ChatBubbleVariant = 'sent' | 'received';
+export type ChatListProps = ChatListPropsWithoutHTML &
+	WithoutChildren<HTMLAttributes<HTMLDivElement>>;
 
-export type ChatBubbleProps = {
+export type ChatBubblePropsWithoutHTML = WithChildren<{
 	ref?: HTMLDivElement | null;
-	variant: ChatBubbleVariant;
-	children?: Snippet;
-} & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
+	variant: 'sent' | 'received';
+}>;
 
-export type ChatBubbleMessageProps = {
+export type ChatBubbleProps = ChatBubblePropsWithoutHTML &
+	WithoutChildren<HTMLAttributes<HTMLDivElement>>;
+
+export type ChatBubbleMessagePropsWithoutHTML = WithChildren<{
 	ref?: HTMLDivElement | null;
 	typing?: boolean;
-	markdown?: boolean;
-	children?: Snippet;
-	class?: string;
-} & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
+}>;
+
+export type ChatBubbleMessageProps = ChatBubbleMessagePropsWithoutHTML &
+	WithoutChildren<HTMLAttributes<HTMLDivElement>>;

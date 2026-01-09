@@ -45,21 +45,24 @@
 	.main-content {
 		flex: 1;
 		margin-left: 260px;
+		width: calc(100vw - 260px);
 		min-height: 100vh;
 		position: relative;
 		z-index: 1;
-		transition: margin-left 0.2s ease;
+		transition: margin-left 0.2s ease, width 0.2s ease;
 	}
 
 	/* Handle collapsed sidebar */
 	:global(.sidebar.collapsed) ~ .main-content {
 		margin-left: 72px;
+		width: calc(100vw - 72px);
 	}
 
 	/* Mobile responsive */
 	@media (max-width: 768px) {
 		.main-content {
 			margin-left: 0;
+			width: 100vw;
 		}
 	}
 </style>

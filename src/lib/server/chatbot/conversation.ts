@@ -1005,11 +1005,21 @@ export async function chat(
 		messageHistory: [...context.messageHistory, { role: 'user', content: userMessage }]
 	};
 
+	// Persist phase changes to fsDB
+	const db = await getChatbotDatabase(context.chatbot.id);
+	db.conversations.updateField(context.conversationId, 'currentPhase', detectedPhase);
+
+	// Track phase progression (add to reachedPhases if new)
+	const existingConv = db.conversations.get(context.conversationId);
+	const reachedPhases = existingConv?.reachedPhases || ['greeting'];
+	if (!reachedPhases.includes(detectedPhase)) {
+		db.conversations.updateField(context.conversationId, 'reachedPhases', [...reachedPhases, detectedPhase]);
+	}
+
 	// Get embedding for user message
 	const messageEmbedding = await embed(userMessage);
 
 	// Retrieve relevant knowledge capsules
-	const db = await getChatbotDatabase(context.chatbot.id);
 	const allCapsules = db.knowledge.all().filter((k: { id: string }) => k.id !== '__chatbot_config__');
 
 	const scoredCapsules = retrieveCapsules(
@@ -1123,6 +1133,17 @@ export async function chatStream(
 		messageHistory: [...context.messageHistory, { role: 'user', content: userMessage }]
 	};
 
+	// Persist phase changes to fsDB
+	const db = await getChatbotDatabase(context.chatbot.id);
+	db.conversations.updateField(context.conversationId, 'currentPhase', detectedPhase);
+
+	// Track phase progression (add to reachedPhases if new)
+	const existingConv = db.conversations.get(context.conversationId);
+	const reachedPhases = existingConv?.reachedPhases || ['greeting'];
+	if (!reachedPhases.includes(detectedPhase)) {
+		db.conversations.updateField(context.conversationId, 'reachedPhases', [...reachedPhases, detectedPhase]);
+	}
+
 	// Get embedding with timing
 	const embeddingStart = performance.now();
 	const messageEmbedding = await embed(userMessage);
@@ -1130,7 +1151,6 @@ export async function chatStream(
 
 	// Retrieve capsules
 	const retrievalStart = performance.now();
-	const db = await getChatbotDatabase(context.chatbot.id);
 	const allCapsules = db.knowledge.all().filter((k: { id: string }) => k.id !== '__chatbot_config__');
 
 	const scoredCapsules = retrieveCapsules(

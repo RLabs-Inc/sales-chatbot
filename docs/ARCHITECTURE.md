@@ -53,13 +53,12 @@ user: { id, username, email, name, passwordHash, createdAt, updatedAt }
 // Sessions (auth)
 session: { id, userId, expiresAt }
 
-// Chatbots (metadata only - actual data in fsDB)
+// Chatbots (metadata only - stats computed from fsDB)
 chatbot: {
   id, userId, name, description, avatar,
   productName, productType, industry,
   personality, welcomeMessage, fallbackMessage,
   status: 'draft' | 'testing' | 'active' | 'paused',
-  totalConversations, totalMessages, conversionsCount,
   createdAt, updatedAt
 }
 

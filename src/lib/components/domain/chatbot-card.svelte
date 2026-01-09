@@ -4,13 +4,22 @@
 	import { cn } from '$lib/utils.js';
 	import type { Chatbot } from '$lib/server/db/schema';
 
+	type ChatbotStats = {
+		totalConversations: number;
+		conversions: number;
+	};
+
 	type Props = {
-		chatbot: Chatbot;
+		chatbot: Chatbot & { stats?: ChatbotStats };
 		href?: string;
 		class?: string;
 	};
 
 	let { chatbot, href, class: className }: Props = $props();
+
+	// Get stats from the stats object (from fsDB) or default to 0
+	const totalConversations = $derived(chatbot.stats?.totalConversations ?? 0);
+	const conversions = $derived(chatbot.stats?.conversions ?? 0);
 
 	const statusVariants: Record<string, string> = {
 		draft: 'bg-muted text-muted-foreground',
@@ -47,9 +56,9 @@
 				{/if}
 			</Card.Content>
 			<Card.Footer class="text-xs text-muted-foreground">
-				<span>{chatbot.totalConversations} conversations</span>
+				<span>{totalConversations} conversations</span>
 				<span class="mx-2">·</span>
-				<span>{chatbot.conversionsCount} conversions</span>
+				<span>{conversions} conversions</span>
 			</Card.Footer>
 		</Card.Root>
 	</a>
@@ -79,9 +88,9 @@
 			{/if}
 		</Card.Content>
 		<Card.Footer class="text-xs text-muted-foreground">
-			<span>{chatbot.totalConversations} conversations</span>
+			<span>{totalConversations} conversations</span>
 			<span class="mx-2">·</span>
-			<span>{chatbot.conversionsCount} conversions</span>
+			<span>{conversions} conversions</span>
 		</Card.Footer>
 	</Card.Root>
 {/if}

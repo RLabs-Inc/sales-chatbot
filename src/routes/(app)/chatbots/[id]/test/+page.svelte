@@ -126,7 +126,12 @@
 									...messages.slice(0, -1),
 									{ role: 'assistant', content: assistantMessage, debugInfo: currentDebugInfo }
 								];
+							} else if (eventData.type === 'context') {
+								// Update phase/emotion immediately when detected (before streaming)
+								currentPhase = eventData.phase || currentPhase;
+								detectedEmotion = eventData.emotion || detectedEmotion;
 							} else if (eventData.type === 'done') {
+								// Final confirmation (should match context event)
 								currentPhase = eventData.phase || currentPhase;
 								detectedEmotion = eventData.emotion || detectedEmotion;
 							}
@@ -192,7 +197,7 @@
 	<title>Test Chat - {data.chatbot.name}</title>
 </svelte:head>
 
-<div class="flex min-h-screen flex-col">
+<div class="flex h-screen flex-col overflow-hidden">
 	<PageHeader title={data.chatbot.name} badge={data.chatbot.productName}>
 		{#snippet stats()}
 			<span><strong class="text-foreground">{data.documentCount}</strong> docs</span>
@@ -201,7 +206,7 @@
 		{/snippet}
 	</PageHeader>
 
-	<main class="flex flex-1 flex-col gap-4 p-4 sm:p-6 lg:flex-row">
+	<main class="flex min-h-0 flex-1 flex-col gap-4 p-4 sm:p-6 lg:flex-row">
 		<!-- Metadata Sidebar -->
 		<aside class="order-1 lg:order-none lg:w-64 lg:shrink-0">
 			<Card.Root class="sticky top-20">
@@ -293,8 +298,8 @@
 		</aside>
 
 		<!-- Chat Window -->
-		<Card.Root class="flex min-h-[500px] flex-1 flex-col lg:min-h-0">
-			<div class="flex-1 overflow-y-auto">
+		<Card.Root class="flex min-h-0 flex-1 flex-col overflow-hidden">
+			<div class="min-h-0 flex-1 overflow-hidden">
 				{#if messages.length === 0}
 					<div class="flex h-full items-center justify-center p-6">
 						<EmptyState
@@ -308,9 +313,9 @@
 						</EmptyState>
 					</div>
 				{:else}
-					<Chat.List class="p-4">
+					<Chat.List class="max-h-[800px]">
 						{#each messages as message, i (i)}
-							<div class="mb-4">
+							<!-- <div class="mb-4"> -->
 								<Chat.Bubble variant={message.role === 'user' ? 'sent' : 'received'}>
 									{#if message.role === 'assistant'}
 										<Chat.BubbleAvatar class="bg-primary text-primary-foreground">
@@ -321,15 +326,17 @@
 									{/if}
 									<Chat.BubbleMessage
 										typing={isStreaming && i === messages.length - 1 && !message.content}
-										class={message.role === 'assistant'
-											? 'prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2'
-											: ''}
-									>
+										class='flex flex-col gap-1 w-full'>
+
 										{#if message.content}
 											{#if message.role === 'assistant'}
-												<SvelteMarkdown source={message.content} />
+											<p class=''>
+											<SvelteMarkdown source={message.content} options={{ mangle: false }} />
+											</p>
 											{:else}
+											<p class=''>
 												{message.content}
+											</p>
 											{/if}
 										{/if}
 									</Chat.BubbleMessage>
@@ -340,7 +347,7 @@
 										<MessageDebugPanel debugInfo={message.debugInfo} />
 									</div>
 								{/if}
-							</div>
+							<!-- </div> -->
 						{/each}
 					</Chat.List>
 				{/if}

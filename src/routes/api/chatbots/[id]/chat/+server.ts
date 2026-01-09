@@ -81,12 +81,12 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 		activeConversations.set(context.conversationId, context);
 	}
 
-	// Save customer message
-	await saveMessage(context, 'customer', message);
-
 	try {
-		// Get streaming response with debug info
+		// Get streaming response with debug info (this also detects emotion/phase)
 		const { stream, updatedContext, humanHandoffRequested, debugInfo } = await chatStream(context, message);
+
+		// Save customer message with freshly-detected emotion
+		await saveMessage(updatedContext, 'customer', message);
 
 		// Update stored context
 		activeConversations.set(context.conversationId, updatedContext);
@@ -111,6 +111,13 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 						)
 					);
 
+					// Send detected phase/emotion immediately so UI updates right away
+					controller.enqueue(
+						encoder.encode(
+							`data: ${JSON.stringify({ type: 'context', phase: updatedContext.currentPhase, emotion: updatedContext.detectedEmotion })}\n\n`
+						)
+					);
+
 					// Send human handoff status if requested
 					if (humanHandoffRequested) {
 						controller.enqueue(
@@ -127,8 +134,9 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 						);
 					}
 
-					// Save assistant message
-					await saveMessage(updatedContext, 'assistant', fullResponse);
+					// Save assistant message with capsule IDs for analytics tracking
+					const capsuleIds = debugInfo.capsules.map(c => c.id);
+					await saveMessage(updatedContext, 'assistant', fullResponse, capsuleIds);
 
 					// Send completion signal
 					controller.enqueue(

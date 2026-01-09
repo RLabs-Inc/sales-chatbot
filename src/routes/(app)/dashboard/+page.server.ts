@@ -6,7 +6,7 @@ import { fail, redirect, isRedirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { chatbot } from '$lib/server/db/schema';
-import { getChatbotDatabase, saveChatbotConfig } from '$lib/server/chatbot';
+import { getChatbotDatabase, saveChatbotConfig, getChatbotStats } from '$lib/server/chatbot';
 import { requireLogin } from '$lib/server/auth';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -19,8 +19,19 @@ export const load: PageServerLoad = async () => {
 		.where(eq(chatbot.userId, user.id))
 		.orderBy(chatbot.updatedAt);
 
+	// Load stats from fsDB for each chatbot
+	const chatbotsWithStats = await Promise.all(
+		chatbots.map(async (bot) => {
+			const stats = await getChatbotStats(bot.id);
+			return {
+				...bot,
+				stats
+			};
+		})
+	);
+
 	return {
-		chatbots
+		chatbots: chatbotsWithStats
 	};
 };
 

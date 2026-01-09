@@ -50,11 +50,6 @@ export const chatbot = sqliteTable('chatbot', {
 	// Status
 	status: text('status').notNull().default('draft'), // 'draft' | 'testing' | 'active' | 'paused'
 
-	// Stats (denormalized for quick access)
-	totalConversations: integer('total_conversations').notNull().default(0),
-	totalMessages: integer('total_messages').notNull().default(0),
-	conversionsCount: integer('conversions_count').notNull().default(0),
-
 	// Timestamps
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()

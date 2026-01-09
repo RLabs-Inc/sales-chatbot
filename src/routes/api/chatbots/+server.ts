@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const id = `bot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 	const now = new Date();
 
-	// Create in SQLite
+	// Create in SQLite (stats come from fsDB, not stored here)
 	const newChatbot = {
 		id,
 		userId: locals.user.id,
@@ -53,9 +53,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		welcomeMessage: body.welcomeMessage || null,
 		fallbackMessage: body.fallbackMessage || null,
 		status: 'draft' as const,
-		totalConversations: 0,
-		totalMessages: 0,
-		conversionsCount: 0,
 		createdAt: now,
 		updatedAt: now
 	};
