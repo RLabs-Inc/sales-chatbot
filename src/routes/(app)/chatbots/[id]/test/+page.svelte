@@ -313,7 +313,7 @@
 						</EmptyState>
 					</div>
 				{:else}
-					<Chat.List class="max-h-[800px]">
+					<Chat.List class="max-h-[700px]">
 						{#each messages as message, i (i)}
 							<!-- <div class="mb-4"> -->
 								<Chat.Bubble variant={message.role === 'user' ? 'sent' : 'received'}>
